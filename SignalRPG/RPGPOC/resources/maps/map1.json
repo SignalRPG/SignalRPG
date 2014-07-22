@@ -1,0 +1,197 @@
+﻿{
+    "title": "Map 1",
+    "x": 25,
+    "y": 16,
+    "bounds": {
+        "top": null,
+        "right": "map2",
+        "bottom": "map4",
+        "left": null
+    },
+    "tileSets": [
+        {
+            "url": "/resources/tilesets/001-Grassland01.png",
+            "frames": 1
+        },
+        {
+            "url": "/resources/autotiles/001-G_Water01.png"
+        }
+    ],
+    "layers": [
+        {
+            "tiles": [
+                {
+                    "style": "fill",
+                    "x": 0,
+                    "y": 0,
+                    "set": 0,
+                    "tileX": 0,
+                    "tileY": 0,
+                    "frames": 0
+                },
+                {
+                    "style": "brush",
+                    "x": 2,
+                    "y": 2,
+                    "set": 1,
+                    "tileX": 0,
+                    "tileY": 1,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 3,
+                    "y": 2,
+                    "set": 1,
+                    "tileX": 1,
+                    "tileY": 1,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 4,
+                    "y": 2,
+                    "set": 1,
+                    "tileX": 2,
+                    "tileY": 1,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 2,
+                    "y": 3,
+                    "set": 1,
+                    "tileX": 0,
+                    "tileY": 2,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 3,
+                    "y": 3,
+                    "set": 1,
+                    "tileX": 1,
+                    "tileY": 2,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 4,
+                    "y": 3,
+                    "set": 1,
+                    "tileX": 2,
+                    "tileY": 2,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 2,
+                    "y": 4,
+                    "set": 1,
+                    "tileX": 0,
+                    "tileY": 3,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 3,
+                    "y": 4,
+                    "set": 1,
+                    "tileX": 1,
+                    "tileY": 3,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 4,
+                    "y": 4,
+                    "set": 1,
+                    "tileX": 2,
+                    "tileY": 3,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 5,
+                    "y": 6,
+                    "set": 1,
+                    "tileX": 0,
+                    "tileY": 1,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 6,
+                    "y": 6,
+                    "set": 1,
+                    "tileX": 1,
+                    "tileY": 1,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 7,
+                    "y": 6,
+                    "set": 1,
+                    "tileX": 2,
+                    "tileY": 1,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 5,
+                    "y": 7,
+                    "set": 1,
+                    "tileX": 0,
+                    "tileY": 2,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 6,
+                    "y": 7,
+                    "set": 1,
+                    "tileX": 1,
+                    "tileY": 2,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 7,
+                    "y": 7,
+                    "set": 1,
+                    "tileX": 2,
+                    "tileY": 2,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 5,
+                    "y": 8,
+                    "set": 1,
+                    "tileX": 0,
+                    "tileY": 3,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 6,
+                    "y": 8,
+                    "set": 1,
+                    "tileX": 1,
+                    "tileY": 3,
+                    "frames": 4
+                },
+                {
+                    "style": "brush",
+                    "x": 7,
+                    "y": 8,
+                    "set": 1,
+                    "tileX": 2,
+                    "tileY": 3,
+                    "frames": 4
+                }
+            ]
+        }
+    ]
+}
