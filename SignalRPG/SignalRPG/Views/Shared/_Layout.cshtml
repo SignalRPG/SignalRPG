@@ -8,11 +8,15 @@
     @Styles.Render("~/bundles/css")
 </head>
 <body>
-    <div>
+    <div class="container-fluid">
         @RenderBody()
     </div>
 
     @Scripts.Render("~/bundles/scripts")
     @Scripts.Render("~/bundles/game")
+
+    @*render page scripts*@
+    @RenderSection("scripts", false)
+
 </body>
 </html>

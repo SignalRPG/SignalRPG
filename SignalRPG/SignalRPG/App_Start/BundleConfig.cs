@@ -16,6 +16,7 @@ namespace SignalRPG
                         "~/Scripts/jquery.signalR-2.1.0.min.js",
                         "~/Scripts/bootstrap.js"));
 
+            //game engine
             bundles.Add(new ScriptBundle("~/bundles/game").Include(
                             "~/Scripts/game-engine.js",
                             "~/Scripts/game.js"));
@@ -23,7 +24,8 @@ namespace SignalRPG
 
             //css
             bundles.Add(new StyleBundle("~/bundles/css").Include(
-                        "~/Content/bootstrap.css"));
+                        "~/Content/bootstrap.min.css",
+                        "~/Content/site.css"));
         }
     }
 }

@@ -1,0 +1,9 @@
+﻿body {
+}
+
+
+#map-container {
+    border: solid 1px #ccc;
+    overflow:scroll;
+    max-height: 512px;
+}
