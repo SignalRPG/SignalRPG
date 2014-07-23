@@ -1,5 +1,6 @@
 ﻿
-//process game time
+//process game time. game time is used to measure the time between each frame, allowing
+//you to control the framerate of animations.
 function GameTime() {
     //self reference
     var _self = this;
