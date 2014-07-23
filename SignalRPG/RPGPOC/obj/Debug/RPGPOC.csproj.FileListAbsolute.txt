@@ -4,3 +4,8 @@ C:\Users\neptu_000\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\bin\RPGPOC.pdb
 C:\Users\neptu_000\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\obj\Debug\RPGPOC.csprojResolveAssemblyReference.cache
 C:\Users\neptu_000\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\obj\Debug\RPGPOC.dll
 C:\Users\neptu_000\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\obj\Debug\RPGPOC.pdb
+C:\Users\ebutler\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\bin\RPGPOC.dll.config
+C:\Users\ebutler\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\bin\RPGPOC.dll
+C:\Users\ebutler\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\bin\RPGPOC.pdb
+C:\Users\ebutler\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\obj\Debug\RPGPOC.dll
+C:\Users\ebutler\Documents\GitHub\SignalRPG\SignalRPG\RPGPOC\obj\Debug\RPGPOC.pdb
