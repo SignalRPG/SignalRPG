@@ -1,8 +1,8 @@
 ﻿using Microsoft.Owin;
 using Owin;
-using MyWebApplication;
 
-namespace MyWebApplication
+
+namespace SignalRPG
 {
     public class Startup
     {
