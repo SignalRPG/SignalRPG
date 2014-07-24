@@ -22,12 +22,13 @@
 <div class="row">
     <div class="col-xs-8">
         <div id="map-container">
-            <div id="map">
+            <canvas id="map">
 
-            </div>
+            </canvas>
         </div>
     </div>
     <div class="col-xs-4">
+        
     </div>
 </div>
 
@@ -40,15 +41,46 @@
         (function () {
             var _tileW = 32;
             var _tileH = 32;
+            var _canvas = document.getElementById('map');
+            var _ctx = _canvas.getContext("2d");
+            var _mouseX = 0;
+            var _mouseY = 0;
 
             $('#generate').click(function () {
-                var w = parseInt($('#map-width').val()) * _tileW;
-                var h = parseInt($('#map-height').val()) * _tileH;
+                var w = parseInt($('#map-width').val());
+                var h = parseInt($('#map-height').val());
 
-                //set size of map
-                $('#map').css({ "width": w, "height": h });
-
+                //create grid
+                adjustMap(w, h);
             });
+
+            $('#map').mousemove(function (e) {
+                _mouseX = e.offsetX;
+                _mouseY = e.offsetY;
+            });
+
+            //generates a grid of map tiles
+            function adjustMap(w, h) {
+
+                _canvas.width = w * _tileW;
+                _canvas.height = h * _tileH;
+            }
+
+            //draw map
+            function draw() {
+                //clear
+                _ctx.fillStyle = "rgb(0,0,0)";
+                _ctx.fillRect(0, 0, _canvas.width, _canvas.height);
+
+                _ctx.fillStyle = "rgb(255,244,233)";
+                _ctx.fillRect(_mouseX, _mouseY, 10, 10);
+
+                //get frame
+                window.requestAnimationFrame(draw);
+            }
+
+            //get frame
+            window.requestAnimationFrame(draw);
 
         })();
 

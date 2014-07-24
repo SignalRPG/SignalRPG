@@ -1,9 +1,29 @@
 ﻿body {
 }
 
-
 #map-container {
     border: solid 1px #ccc;
-    overflow:scroll;
-    max-height: 512px;
+    overflow: scroll;
+    height: 550px;
 }
+
+    /*#map-container #map {
+        line-height: 0;
+    }
+
+        #map-container #map > div {
+            display: inline-block;
+            border: 1px solid #eee;
+            padding: 0;
+            margin: 0;
+
+            transition: all 0.2s ease-out;
+        }
+
+        #map-container #map > div:hover {
+            background-color: rgba(204, 204, 204, 0.50);
+        }
+
+            #map-container #map > div:nth-child(odd) {
+                background-color: #eee;
+            }*/
