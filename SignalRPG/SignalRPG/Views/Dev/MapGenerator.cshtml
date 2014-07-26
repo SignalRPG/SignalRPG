@@ -4,48 +4,292 @@
 
 <h2>Map Generator</h2>
 
-<div class="form-inline">
+<div class="container-fluid">
 
-    <div class="form-group">
-        <label for="map-width">Width</label>
-        <input id="map-width" type="text" class="form-control" />
+
+    <div class="form-inline">
+
+        <div class="form-group">
+            <label for="map-width">Width</label>
+            <input id="map-width" type="text" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="map-height">Height</label>
+            <input id="map-height" type="text" class="form-control" />
+        </div>
+
+        <button id="generate" type="button" class="btn btn-default">Generate</button>
     </div>
-    <div class="form-group">
-        <label for="map-height">Height</label>
-        <input id="map-height" type="text" class="form-control" />
-    </div>
+    <hr />
+    <div class="btn-toolbar" role="toolbar">
 
-    <button id="generate" type="button" class="btn btn-default">Generate</button>
-</div>
-<hr />
+        <div id="toolbar-layers" class="btn-group" data-toggle="buttons">
+            <label class="btn btn-default active">
+                <input type="radio" name="layers" class="btn btn-default" checked="checked" value="0" />1
+            </label>
 
-<div class="row">
-    <div class="col-xs-8">
-        <div id="map-container">
-            <canvas id="map">
+            <label class="btn btn-default">
+                <input type="radio" name="layers" class="btn btn-default" value="1" />2
+            </label>
 
-            </canvas>
+            <label class="btn btn-default">
+                <input type="radio" name="layers" class="btn btn-default" value="2" />3
+            </label>
+
+            <label class="btn btn-default">
+                <input type="radio" name="layers" class="btn btn-default" value="-1" />View
+            </label>
+        </div>
+
+        <div id="toolbar-commands" class="btn-group" data-toggle="buttons">
+            <label class="btn btn-default active brush">
+                <input type="radio" name="commands" class="btn btn-default" checked="checked" value="brush" />Brush
+            </label>
+
+            <label class="btn btn-default">
+                <input type="radio" name="commands" class="btn btn-default" value="fill" />Fill
+            </label>
+
+            <label class="btn btn-default">
+                <input type="radio" name="commands" class="btn btn-default" value="erase" /><i class="fa fa-eraser"></i>
+            </label>
+
+            <label class="btn btn-default">
+                <input type="radio" name="commands" class="btn btn-default" value="clear" /><i class="fa fa-ban"></i>
+            </label>
+
         </div>
     </div>
-    <div class="col-xs-4">
-        
+    <br />
+    <div class="row">
+        <div class="col-xs-8">
+
+
+            <div id="map-container">
+                <canvas id="map"></canvas>
+            </div>
+        </div>
+        <div class="col-xs-4">
+            <canvas id="tileset"></canvas>
+        </div>
     </div>
 </div>
-
-
-
 
 
 @section scripts{
     <script>
+        var TILE_W = 32;
+        var TILE_H = 32;
+
+        //creates a 2 dimensional array represented in x, y
+        function Array2D(x, y) {
+            //create x axis
+            var _arr = new Array(x);
+
+            for (var i = 0; i < x; i++) {
+                //add new element to the y axis
+                _arr[i] = new Array(y);
+            }
+
+            return _arr;
+        }
+
+        //Array2D.prototype.resize = function (x, y) {
+        //    //find the difference between the old size and the new size. if removing items,
+        //    //difference will be negative
+        //    var diffX = x - this.length;
+        //    if (diffX < 0) {
+        //        this.splice(this.length - 1, Math.abs(diffX));
+        //    }
+
+        //    if (diffX > 0) {
+        //        for (var i = 0; i < diffX; i++) {
+        //            this.push(new Array(y));
+        //        }
+        //    }
+
+        //    var diffY = y - this[0].length;
+        //    if (diffY < 0) {
+        //        this.splice(this.length - 1, Math.abs(diffX));
+        //    }
+
+        //    if (x > 0) {
+        //        for (var i = 0; i < diffX; i++) {
+        //            this.push(new Array(y));
+        //        }
+        //    }
+
+        //}
+
+        //layer draws all the tiles in a grid.
+        function Layer(w, h) {
+            var that = this;
+            //2d array of tiles
+            this.tiles = new Array2D(w, h);
+            //canvas for the layer where the tiles will be drawn
+            this.backbuffer = document.createElement('canvas');
+
+            //get the context to draw on
+            var _ctx = this.backbuffer.getContext('2d');
+
+            //resize layer
+            this.resizeLayer = function (x, y) {
+                //if we resize the layer, create a new 2d array.
+                //TODO: improve this by keeping original content. create new array and copy data
+                that.tiles = new Array2D(x, y);
+                //resize the backbuffer to the size of the layer
+                that.backbuffer.width = x * TILE_W;
+                that.backbuffer.height = y * TILE_H;
+            }
+
+            //renders a particular tileset to the backbuffer
+            //TODO: need the ability to specify more than one tileset?
+            this.draw = function (tileset) {
+
+                //clear
+                _ctx.clearRect(0, 0, that.backbuffer.width, that.backbuffer.height);
+
+                //render the layer onto the backbuffer
+                for (var i = 0; i < that.tiles.length; i++) {
+                    for (var j = 0; j < that.tiles[i].length; j++) {
+                        var tile = that.tiles[i][j];
+                        if (tile != undefined && tile != null) {
+                            //draw tile
+                            _ctx.drawImage(tileset,
+                                tile.srcX * TILE_W, tile.srcY * TILE_H, TILE_W, TILE_H,
+                                i * TILE_W, j * TILE_H, TILE_W, TILE_H);
+                        }
+                    }
+                }
+            }
+        }
+
+        //draws the tileset and allows the user to select a tile to draw on the map
+        function TileSetEngine() {
+            var that = this;
+
+            this.tileset = document.getElementById('tileset');
+            var _ctx = this.tileset.getContext("2d");
+            this.image = new Image();
+
+            //where the mouse is over the grid
+            var _gridX = 0;
+            var _gridY = 0;
+            var _mouseDown = false;
+
+            this.selectX = 0;
+            this.selectY = 0;
+            this.selectW = 1;
+            this.selectH = 1;
+
+
+            this.image.onload = function () {
+                //image has loaded. set tileset size to size of image
+                adjustTileSet(that.image.width / TILE_W, that.image.height / TILE_H);
+            };
+
+            this.image.src = "/resources/tilesets/001-Grassland01.png";
+
+            //on mouse move, calculate the grid x,y coord based on mouse pos
+            $('#tileset').mousemove(function (e) {
+                _gridX = Math.floor(e.offsetX / TILE_W);
+                _gridY = Math.floor(e.offsetY / TILE_H);
+
+                if (_mouseDown) {
+                    //our select W, H will increase or descrease, depending on where we placed the selection
+                    var sizeW = (_gridX + 1) - that.selectX;
+                    var sizeH = (_gridY + 1) - that.selectY;
+
+                    that.selectW = sizeW;
+                    that.selectH = sizeH;
+                }
+            });
+
+            //when mouse is clicked, take position and plop the tile there
+            $('#tileset').mousedown(function (e) {
+
+                //reset the select size
+                that.selectW = 1;
+                that.selectH = 1;
+
+                //select the brush by default
+                $('#toolbar-commands .brush').button('toggle')
+                //$('#toolbar-commands input[value="brush"').prop('checked', 'checked').trigger('change');
+
+                //mouse is down
+                _mouseDown = true;
+
+                //place selection here
+                that.selectX = Math.floor(e.offsetX / TILE_W);
+                that.selectY = Math.floor(e.offsetY / TILE_H);
+            });
+
+            $('#tileset').mouseup(function (e) {
+                _mouseDown = false;
+            });
+
+            //generates a grid of map tiles
+            function adjustTileSet(w, h) {
+
+                that.tileset.width = w * TILE_W;
+                that.tileset.height = h * TILE_H;
+            }
+
+            //draw map
+            function draw() {
+                //clear
+                _ctx.clearRect(0, 0, that.tileset.width, that.tileset.height);
+
+                //draw the image
+                _ctx.drawImage(that.image,
+                    0, 0, that.image.width, that.image.height,
+                    0, 0, that.image.width, that.image.height);
+
+
+                //draw the tile square where the selection is
+                _ctx.strokeStyle = "rgb(0,128,255)";
+                _ctx.strokeRect(that.selectX * TILE_W, that.selectY * TILE_H, that.selectW * TILE_W, that.selectH * TILE_H);
+
+
+                //draw the tile square where the mouse is
+                _ctx.fillStyle = "rgba(0,0,0, 0.5)";
+                _ctx.fillRect(_gridX * TILE_W, _gridY * TILE_H, TILE_W, TILE_H);
+
+                //get frame
+                window.requestAnimationFrame(draw);
+            }
+
+            //initial map size
+            adjustTileSet(1, 1);
+
+
+            //get frame
+            window.requestAnimationFrame(draw);
+
+        };
+
+
         (function () {
-            var _tileW = 32;
-            var _tileH = 32;
+            var _tileSetEngine = new TileSetEngine();
             var _canvas = document.getElementById('map');
             var _ctx = _canvas.getContext("2d");
-            var _mouseX = 0;
-            var _mouseY = 0;
+            var _defX = 25;
+            var _defY = 16;
 
+            //where the mouse is over the grid
+            var _gridX = 0;
+            var _gridY = 0;
+
+            var _layers = [];
+            var _activeLayer = 0;
+            var _mouseDown = false;
+            var _mouseOver = false;
+            var _oldX = null;
+            var _oldY = null;
+
+            var _command = 'brush';
+
+            //generate a map of a particular size
             $('#generate').click(function () {
                 var w = parseInt($('#map-width').val());
                 var h = parseInt($('#map-height').val());
@@ -54,16 +298,172 @@
                 adjustMap(w, h);
             });
 
+            //on mouse move, calculate the grid x,y coord based on mouse pos
             $('#map').mousemove(function (e) {
-                _mouseX = e.offsetX;
-                _mouseY = e.offsetY;
+                _gridX = Math.floor(e.offsetX / TILE_W);
+                _gridY = Math.floor(e.offsetY / TILE_H);
+
+                if (_mouseDown) {
+                    //execute the selected draw command
+                    executeDrawCommand(e);
+                }
             });
+
+            //when mouse is clicked, take position and plop the tile there
+            $('#map').mousedown(function (e) {
+                _mouseDown = true;
+
+                //execute the selected draw command
+                executeDrawCommand(e);
+
+            });
+
+            //mouse up
+            $('#map').mouseup(function (e) {
+                _mouseDown = false;
+                _oldX = null;
+                _oldY = null;
+            });
+
+            $('#map').mouseenter(function (e) {
+                _mouseOver = true;
+            });
+
+            $('#map').mouseleave(function (e) {
+                _mouseOver = false;
+            });
+
+            //handle check event on layers
+            $('#toolbar-layers input[type="radio"]').change(function () {
+                _activeLayer = parseInt($(this).val());
+            });
+
+            //handle check event on layers
+            $('#toolbar-commands input[type="radio"]').change(function () {
+                _command = $(this).val();
+            });
+
+            //execute the selected draw command
+            function executeDrawCommand(e) {
+                if (_activeLayer < 0) {
+                    return;
+                }
+
+                var x = Math.floor(e.offsetX / TILE_W);
+                var y = Math.floor(e.offsetY / TILE_H);
+
+                if (_command == 'brush') {
+                    //place the tile on the map
+                    placeTile(x, y);
+                }
+                else if (_command == 'erase') {
+                    //erase the tile
+                    eraseTile(x, y);
+                }
+                else if (_command == 'fill') {
+                    //fill with tile
+                    fillLayer();
+                }
+                else if (_command == 'clear') {
+                    //clear all tiles
+                    clearLayer();
+                }
+
+                //update old pos so we dont update again until mouse is over next tile
+                _oldX = x;
+                _oldY = y;
+            }
+
+            //places a tile on the map at the x,y coord where the mouse is
+            function placeTile(x, y) {
+
+                if (_oldX != x || _oldY != y) {
+                    //get the active layer
+                    var layer = _layers[_activeLayer];
+
+                    //loop and draw all tiles
+                    for (var i = 0; i < _tileSetEngine.selectW; i++) {
+                        for (var j = 0; j < _tileSetEngine.selectH; j++) {
+
+                            //make sure x + i and y + j do not go out of map bounds
+                            if (x + i > _defX - 1 || y + j > _defY) {
+                                //skip over this iteration because it goes out of bounds
+                                continue;
+                            }
+
+                            //add coords
+                            layer.tiles[x + i][y + j] = {
+                                srcX: _tileSetEngine.selectX + i,
+                                srcY: _tileSetEngine.selectY + j
+                            };
+                        }
+                    }
+
+
+
+
+                }
+            }
+
+            //fills the entire layer with the selected tile. overwrites everything on that layer
+            function fillLayer() {
+                //get the active layer
+                var layer = _layers[_activeLayer];
+
+                for (var i = 0; i < layer.tiles.length; i++) {
+                    for (var j = 0; j < layer.tiles[i].length; j++) {
+
+                        //add coords
+                        layer.tiles[i][j] = {
+                            srcX: _tileSetEngine.selectX,
+                            srcY: _tileSetEngine.selectY
+                        };
+
+                    }
+                }
+            }
+
+            //removes a tile from the grid
+            function eraseTile(x, y) {
+
+                if (_oldX != x || _oldY != y) {
+                    //get the active layer
+                    var layer = _layers[_activeLayer];
+
+                    //remove coords
+                    delete layer.tiles[x][y];
+
+                }
+            }
+
+            //clears the entire layer
+            function clearLayer() {
+                //get the active layer
+                var layer = _layers[_activeLayer];
+
+                for (var i = 0; i < layer.tiles.length; i++) {
+                    for (var j = 0; j < layer.tiles[i].length; j++) {
+
+                        //add coords
+                        delete layer.tiles[i][j];
+
+                    }
+                }
+            }
 
             //generates a grid of map tiles
             function adjustMap(w, h) {
+                _defX = w;
+                _defY = h;
 
-                _canvas.width = w * _tileW;
-                _canvas.height = h * _tileH;
+                _canvas.width = w * TILE_W;
+                _canvas.height = h * TILE_H;
+
+                for (var i = 0; i < _layers.length; i++) {
+                    var layer = _layers[i];
+                    //resize layer
+                    layer.resizeLayer(w, h);
+                }
             }
 
             //draw map
@@ -72,19 +472,61 @@
                 _ctx.fillStyle = "rgb(0,0,0)";
                 _ctx.fillRect(0, 0, _canvas.width, _canvas.height);
 
-                _ctx.fillStyle = "rgb(255,244,233)";
-                _ctx.fillRect(_mouseX, _mouseY, 10, 10);
+                //render the contents of the array to a back buffer, one per layer
+                for (var i = 0; i < _layers.length; i++) {
+                    var layer = _layers[i];
+
+                    //draw this tileset
+                    layer.draw(_tileSetEngine.image);
+                    //draw layer
+                    _ctx.globalAlpha = 0.3;
+                    if (i == _activeLayer || _activeLayer < 0) {
+                        _ctx.globalAlpha = 1;
+                    }
+
+                    //draw the layer's backbuffer
+                    _ctx.drawImage(layer.backbuffer,
+                        0, 0, layer.backbuffer.width, layer.backbuffer.height,
+                        0, 0, _canvas.width, _canvas.height);
+
+                }
+                //reset global alpha
+                _ctx.globalAlpha = 1;
+
+                //draw the select square if we are on a valid layer
+                if (_activeLayer > -1 && _mouseOver) {
+
+                    if (_command == 'brush') {
+                        //draw the tile preview based on the selected tileset
+                        _ctx.drawImage(_tileSetEngine.image,
+                            _tileSetEngine.selectX * TILE_W, _tileSetEngine.selectY * TILE_H, _tileSetEngine.selectW * TILE_W, _tileSetEngine.selectH * TILE_H,
+                            _gridX * TILE_W, _gridY * TILE_H, _tileSetEngine.selectW * TILE_W, _tileSetEngine.selectH * TILE_H);
+                    }
+                    else {
+                        //draw the tile square where the mouse is
+                        //draw the tile preview based on the selected tileset
+                        _ctx.drawImage(_tileSetEngine.image,
+                            _tileSetEngine.selectX * TILE_W, _tileSetEngine.selectY * TILE_H, TILE_W, TILE_H,
+                            _gridX * TILE_W, _gridY * TILE_H, TILE_W, TILE_H);
+                    }
+                }
 
                 //get frame
                 window.requestAnimationFrame(draw);
             }
 
+            //create layers
+            _layers.push(new Layer(_defX, _defY));
+            _layers.push(new Layer(_defX, _defY));
+            _layers.push(new Layer(_defX, _defY));
+
+            //initial map size
+            adjustMap(_defX, _defY);
+
             //get frame
             window.requestAnimationFrame(draw);
 
         })();
-
-
     </script>
 }
 
