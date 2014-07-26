@@ -22,42 +22,47 @@
     </div>
     <hr />
     <div class="btn-toolbar" role="toolbar">
+        <div class="pull-left">
+            <label class="clearfix">Layers</label>
+            <div id="toolbar-layers" class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default active">
+                    <input type="radio" name="layers" class="btn btn-default" checked="checked" value="0" />1
+                </label>
 
-        <div id="toolbar-layers" class="btn-group" data-toggle="buttons">
-            <label class="btn btn-default active">
-                <input type="radio" name="layers" class="btn btn-default" checked="checked" value="0" />1
-            </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="layers" class="btn btn-default" value="1" />2
+                </label>
 
-            <label class="btn btn-default">
-                <input type="radio" name="layers" class="btn btn-default" value="1" />2
-            </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="layers" class="btn btn-default" value="2" />3
+                </label>
 
-            <label class="btn btn-default">
-                <input type="radio" name="layers" class="btn btn-default" value="2" />3
-            </label>
-
-            <label class="btn btn-default">
-                <input type="radio" name="layers" class="btn btn-default" value="-1" />View
-            </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="layers" class="btn btn-default" value="-1" />View
+                </label>
+            </div>
         </div>
 
-        <div id="toolbar-commands" class="btn-group" data-toggle="buttons">
-            <label class="btn btn-default active brush">
-                <input type="radio" name="commands" class="btn btn-default" checked="checked" value="brush" />Brush
-            </label>
+        <div class="pull-left">
+            <label class="clearfix">Drawing Tools</label>
+            <div id="toolbar-commands" class="btn-group" data-toggle="buttons">
+                <label class="btn btn-default active brush">
+                    <input type="radio" name="commands" class="btn btn-default" checked="checked" value="brush" />Brush
+                </label>
 
-            <label class="btn btn-default">
-                <input type="radio" name="commands" class="btn btn-default" value="fill" />Fill
-            </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="commands" class="btn btn-default" value="fill" />Fill
+                </label>
 
-            <label class="btn btn-default">
-                <input type="radio" name="commands" class="btn btn-default" value="erase" /><i class="fa fa-eraser"></i>
-            </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="commands" class="btn btn-default" value="erase" /><i class="fa fa-eraser"></i>
+                </label>
 
-            <label class="btn btn-default">
-                <input type="radio" name="commands" class="btn btn-default" value="clear" /><i class="fa fa-ban"></i>
-            </label>
+                <label class="btn btn-default">
+                    <input type="radio" name="commands" class="btn btn-default" value="clear" /><i class="fa fa-ban"></i>
+                </label>
 
+            </div>
         </div>
     </div>
     <br />
