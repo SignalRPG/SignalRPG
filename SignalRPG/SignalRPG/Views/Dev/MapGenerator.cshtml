@@ -99,32 +99,7 @@
             return _arr;
         }
 
-        //Array2D.prototype.resize = function (x, y) {
-        //    //find the difference between the old size and the new size. if removing items,
-        //    //difference will be negative
-        //    var diffX = x - this.length;
-        //    if (diffX < 0) {
-        //        this.splice(this.length - 1, Math.abs(diffX));
-        //    }
 
-        //    if (diffX > 0) {
-        //        for (var i = 0; i < diffX; i++) {
-        //            this.push(new Array(y));
-        //        }
-        //    }
-
-        //    var diffY = y - this[0].length;
-        //    if (diffY < 0) {
-        //        this.splice(this.length - 1, Math.abs(diffX));
-        //    }
-
-        //    if (x > 0) {
-        //        for (var i = 0; i < diffX; i++) {
-        //            this.push(new Array(y));
-        //        }
-        //    }
-
-        //}
 
         //layer draws all the tiles in a grid.
         function Layer(w, h) {
@@ -175,25 +150,22 @@
 
             this.tileset = document.getElementById('tileset');
             var _ctx = this.tileset.getContext("2d");
-            this.image = new Image();
+
 
             //where the mouse is over the grid
             var _gridX = 0;
             var _gridY = 0;
             var _mouseDown = false;
+            var _currentImage = 0;
 
+            //selection. x,y and w,h
             this.selectX = 0;
             this.selectY = 0;
             this.selectW = 1;
             this.selectH = 1;
 
-
-            this.image.onload = function () {
-                //image has loaded. set tileset size to size of image
-                adjustTileSet(that.image.width / TILE_W, that.image.height / TILE_H);
-            };
-
-            this.image.src = "/resources/tilesets/001-Grassland01.png";
+            //our images
+            this.image = [];
 
             //on mouse move, calculate the grid x,y coord based on mouse pos
             $('#tileset').mousemove(function (e) {
@@ -229,9 +201,40 @@
                 that.selectY = Math.floor(e.offsetY / TILE_H);
             });
 
+            //mouse was released
             $('#tileset').mouseup(function (e) {
                 _mouseDown = false;
             });
+
+            this.getImage = function () {
+                return that.image[_currentImage];
+            }
+
+            //function load images
+            function loadImages() {
+                that.image.push(new Image());
+                that.image.push(new Image());
+
+                for (var x = 0; x < that.image.length; x++) {
+                    var image = that.image[x];
+                    //do stuff?
+                }
+                
+                that.image[0].onload = function () {
+                    selectImage(0);
+                };
+
+                that.image[0].src = "/resources/tilesets/001-Grassland01.png";
+                that.image[1].src = "/resources/autotiles/001-G_Water01.png";
+            }
+
+            //selects the current image
+            function selectImage(index) {
+                _currentImage = index;
+                var image = that.getImage();
+                //image has loaded. set tileset size to size of image
+                adjustTileSet(image.width / TILE_W, image.height / TILE_H);
+            }
 
             //generates a grid of map tiles
             function adjustTileSet(w, h) {
@@ -246,9 +249,10 @@
                 _ctx.clearRect(0, 0, that.tileset.width, that.tileset.height);
 
                 //draw the image
-                _ctx.drawImage(that.image,
-                    0, 0, that.image.width, that.image.height,
-                    0, 0, that.image.width, that.image.height);
+                var image = that.getImage();
+                _ctx.drawImage(image,
+                    0, 0, image.width, image.height,
+                    0, 0, image.width, image.height);
 
 
                 //draw the tile square where the selection is
@@ -264,9 +268,10 @@
                 window.requestAnimationFrame(draw);
             }
 
-            //initial map size
-            adjustTileSet(1, 1);
+            loadImages();
 
+            ////initial map size
+            //adjustTileSet(1, 1);
 
             //get frame
             window.requestAnimationFrame(draw);
@@ -482,7 +487,7 @@
                     var layer = _layers[i];
 
                     //draw this tileset
-                    layer.draw(_tileSetEngine.image);
+                    layer.draw(_tileSetEngine.getImage());
                     //draw layer
                     _ctx.globalAlpha = 0.3;
                     if (i == _activeLayer || _activeLayer < 0) {
@@ -503,14 +508,14 @@
 
                     if (_command == 'brush') {
                         //draw the tile preview based on the selected tileset
-                        _ctx.drawImage(_tileSetEngine.image,
+                        _ctx.drawImage(_tileSetEngine.getImage(),
                             _tileSetEngine.selectX * TILE_W, _tileSetEngine.selectY * TILE_H, _tileSetEngine.selectW * TILE_W, _tileSetEngine.selectH * TILE_H,
                             _gridX * TILE_W, _gridY * TILE_H, _tileSetEngine.selectW * TILE_W, _tileSetEngine.selectH * TILE_H);
                     }
                     else {
                         //draw the tile square where the mouse is
                         //draw the tile preview based on the selected tileset
-                        _ctx.drawImage(_tileSetEngine.image,
+                        _ctx.drawImage(_tileSetEngine.getImage(),
                             _tileSetEngine.selectX * TILE_W, _tileSetEngine.selectY * TILE_H, TILE_W, TILE_H,
                             _gridX * TILE_W, _gridY * TILE_H, TILE_W, TILE_H);
                     }
