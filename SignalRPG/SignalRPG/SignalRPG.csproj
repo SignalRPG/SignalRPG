@@ -146,6 +146,7 @@
     <Content Include="resources\maps\map3.json" />
     <Content Include="resources\maps\map4.json" />
     <Content Include="resources\tilesets\001-Grassland01.json" />
+    <Content Include="Scripts\game-classes.js" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
@@ -154,6 +155,7 @@
     <Content Include="Scripts\jquery.unobtrusive-ajax.js" />
     <Content Include="Scripts\jquery.unobtrusive-ajax.min.js" />
     <Content Include="Scripts\game-engine.js" />
+    <Content Include="Scripts\game-map.js" />
     <Content Include="Web.config" />
   </ItemGroup>
   <ItemGroup>

@@ -11,15 +11,17 @@ namespace SignalRPG
 
             //scripts
             bundles.Add(new ScriptBundle("~/bundles/scripts").Include(
-                        "~/Scripts/jquery-2.1.1.js",
-                        "~/Scripts/jquery.unobtrusive-ajax.min.js",
-                        "~/Scripts/jquery.signalR-2.1.0.min.js",
-                        "~/Scripts/bootstrap.js"));
+                "~/Scripts/jquery-2.1.1.js",
+                "~/Scripts/jquery.unobtrusive-ajax.min.js",
+                "~/Scripts/jquery.signalR-2.1.0.min.js",
+                "~/Scripts/bootstrap.js"));
 
             //game engine
             bundles.Add(new ScriptBundle("~/bundles/game").Include(
-                            "~/Scripts/game-engine.js",
-                            "~/Scripts/game.js"));
+                "~/Scripts/game-classes.js",
+                "~/Scripts/game-map.js",
+                "~/Scripts/game-engine.js",
+                "~/Scripts/game.js"));
 
 
             //css
