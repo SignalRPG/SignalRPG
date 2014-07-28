@@ -145,6 +145,7 @@
     <Content Include="resources\maps\map2.json" />
     <Content Include="resources\maps\map3.json" />
     <Content Include="resources\maps\map4.json" />
+    <Content Include="resources\tilesets\001-Grassland01.json" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />

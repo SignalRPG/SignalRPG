@@ -1,14 +1,50 @@
 ﻿body {
 }
 
-#map-container{
+#map-container {
     overflow: auto;
 }
 
-#map-container #map {
+    #map-container #map {
+        cursor: default;
+    }
+
+#tileset {
     cursor: default;
 }
 
-#tileset{
-    cursor: default;
+#tileset-direction {
+    border: 1px solid #000;
+    width: 48px;
+    height: 48px;
+    position: relative;
 }
+
+    #tileset-direction input {
+        margin: 0;
+        padding: 0;
+    }
+
+    #tileset-direction .up {
+        position: absolute;
+        top: 0;
+        left: 35%;
+    }
+
+    #tileset-direction .right {
+        position: absolute;
+        top: 35%;
+        right: 0;
+    }
+
+    #tileset-direction .down {
+        position: absolute;
+        bottom: 0;
+        left: 35%;
+    }
+
+    #tileset-direction .left {
+        position: absolute;
+        top: 35%;
+        left: 0;
+    }

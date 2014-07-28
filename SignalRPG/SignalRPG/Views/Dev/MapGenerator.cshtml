@@ -75,6 +75,12 @@
             </div>
         </div>
         <div class="col-xs-4">
+            <div id="tileset-direction">
+                <input class="up" type="checkbox" />
+                <input class="right" type="checkbox" />
+                <input class="down" type="checkbox" />
+                <input class="left" type="checkbox" />
+            </div>
             <canvas id="tileset"></canvas>
         </div>
     </div>
@@ -144,6 +150,51 @@
             }
         }
 
+        //tile info
+        function TileSetTileInfo() {
+            var _self = this;
+
+            //0 allows all direction
+            this.directions = 0;
+            //higher priority gets drawn on top of all other tiles below it
+            this.priority = 0;
+        }
+
+        //tileset tile
+        function TileSetTile(name, onload) {
+            var _self = this;
+            this.image = null;
+            this.tiles = null;
+
+            //load a tileset
+            $.getJSON('/resources/tilesets/' + name + '.json', {}, function (data) {
+                var set = new TileSetTile();
+                //set properties
+                _self.image = new Image();
+                _self.image.onload = function () {
+
+                    //get number of tiles
+                    var x = _self.image.width / TILE_W;
+                    var y = _self.image.height / TILE_H;
+
+                    //create tiles
+                    _self.tiles = new Array2D(x, y);
+
+
+                    //call callback
+                    if (typeof onload == 'function') {
+                        onload();
+                    }
+                };
+
+                //load image
+                _self.image.src = '/resources/tilesets/' + name + '.png';
+
+
+            });
+
+        }
+
         //draws the tileset and allows the user to select a tile to draw on the map
         function TileSetEngine() {
             var that = this;
@@ -158,14 +209,16 @@
             var _mouseDown = false;
             var _currentImage = 0;
 
+
             //selection. x,y and w,h
             this.selectX = 0;
             this.selectY = 0;
             this.selectW = 1;
             this.selectH = 1;
+            this.selectedTile = null;
 
             //our images
-            this.image = [];
+            var _sets = [];
 
             //on mouse move, calculate the grid x,y coord based on mouse pos
             $('#tileset').mousemove(function (e) {
@@ -206,26 +259,20 @@
                 _mouseDown = false;
             });
 
+            //gets the currently selected set's image
             this.getImage = function () {
-                return that.image[_currentImage];
+                return _sets[_currentImage].image;
             }
 
             //function load images
-            function loadImages() {
-                that.image.push(new Image());
-                that.image.push(new Image());
+            function loadTileset() {
 
-                for (var x = 0; x < that.image.length; x++) {
-                    var image = that.image[x];
-                    //do stuff?
-                }
+                //load a tileset
+                var set = new TileSetTile('001-Grassland01', function () { selectImage(0); });
                 
-                that.image[0].onload = function () {
-                    selectImage(0);
-                };
-
-                that.image[0].src = "/resources/tilesets/001-Grassland01.png";
-                that.image[1].src = "/resources/autotiles/001-G_Water01.png";
+                //add set to array
+                _sets.push(set);
+                
             }
 
             //selects the current image
@@ -268,7 +315,8 @@
                 window.requestAnimationFrame(draw);
             }
 
-            loadImages();
+            //load tileset
+            loadTileset();
 
             ////initial map size
             //adjustTileSet(1, 1);
