@@ -87,6 +87,11 @@
                 <input id="direction-left" class="left" type="checkbox" />
             </div>
             <canvas id="tileset"></canvas>
+            <button id="save-tileset" type="button">Save</button>
+            <hr />
+            <div id="tileset-json" class="well">
+
+            </div>
         </div>
     </div>
 </div>
@@ -97,7 +102,7 @@
         var TILE_W = 32;
         var TILE_H = 32;
 
-        
+
 
 
 
@@ -144,10 +149,18 @@
             }
         }
 
-        //tile info
+        //tileset tile info. contains the info to be copied to the map as the map's tile info
         function TileSetTileInfo() {
-            var _self = this;
+            //0 allows all direction
+            this.directions = 0;
+            //higher priority gets drawn on top of all other tiles below it
+            this.priority = 0;
+        }
 
+        //map tile info. settings for the map rendering engine
+        function MapTileInfo() {
+            this.srcX = 0;
+            this.srcY = 0;
             //0 allows all direction
             this.directions = 0;
             //higher priority gets drawn on top of all other tiles below it
@@ -157,7 +170,9 @@
         //tileset tile
         function TileSet(name, onload) {
             var _self = this;
-            this.image = null;
+            this.name = name;
+            this.frames = 1;
+            this.image = new Image();
             this.tiles = new Array2D(0, 0);
 
             //load a tileset
@@ -174,9 +189,18 @@
                     _self.tiles = new Array2D(x, y);
 
                     //fill tiles with tile infos
-                    for (var i = 0; i < x; x++) {
+                    for (var i = 0; i < x; i++) {
                         for (var j = 0; j < y; j++) {
-                            _self.tiles[i][j] = new TileSetTileInfo();
+                            var tileInfo = new TileSetTileInfo();
+
+                            _self.tiles[i][j] = tileInfo;
+                            //get the settings from the json tiles
+                            var tileData = data.tiles[i][j];
+                            //set the settings
+                            tileInfo.directions = tileData.directions;
+                            tileInfo.priority = tileData.priority;
+
+                            //tileInfo.directions = DIRECTION_ALL;
                         }
                     }
 
@@ -255,6 +279,8 @@
                 //get the selected tile info
                 that.selectedTile = that.getTile(that.selectX, that.selectY);
                 console.log(that.selectedTile);
+
+                populateTileSettings();
             });
 
             //mouse was released
@@ -262,7 +288,83 @@
                 _mouseDown = false;
             });
 
-            $('#')
+            //directional checkboxes
+            $('#direction-up').click(function () {
+                if (that.selectedTile != null) {
+                    var checked = $(this).prop('checked');
+                    //bitwise operations
+                    if (checked) {
+                        that.selectedTile.directions |= DIRECTION_UP;
+                    }
+                    else {
+                        that.selectedTile.directions &= ~DIRECTION_UP;
+                    }
+
+                }
+            });
+
+            //directional checkboxes
+            $('#direction-right').click(function () {
+                if (that.selectedTile != null) {
+                    var checked = $(this).prop('checked');
+                    //bitwise operations
+                    if (checked) {
+                        that.selectedTile.directions |= DIRECTION_RIGHT;
+                    }
+                    else {
+                        that.selectedTile.directions &= ~DIRECTION_RIGHT;
+                    }
+
+                }
+            });
+
+            //directional checkboxes
+            $('#direction-down').click(function () {
+                if (that.selectedTile != null) {
+                    var checked = $(this).prop('checked');
+                    //bitwise operations
+                    if (checked) {
+                        that.selectedTile.directions |= DIRECTION_DOWN;
+                    }
+                    else {
+                        that.selectedTile.directions &= ~DIRECTION_DOWN;
+                    }
+
+                }
+            });
+
+            //directional checkboxes
+            $('#direction-left').click(function () {
+                if (that.selectedTile != null) {
+                    var checked = $(this).prop('checked');
+                    //bitwise operations
+                    if (checked) {
+                        that.selectedTile.directions |= DIRECTION_LEFT;
+                    }
+                    else {
+                        that.selectedTile.directions &= ~DIRECTION_LEFT;
+                    }
+
+                }
+            });
+
+            //save the json data
+            $('#save-tileset').click(function () {
+                var set = that.getSet();
+
+                var obj = {
+                    name: set.name,
+                    frames: set.frames,
+                    tiles: set.tiles
+                }
+
+                $('#tileset-json').html(JSON.stringify(obj));
+            });
+
+            //gets the current tileset
+            this.getSet = function(){
+                return _sets[_currentImage];
+            }
 
             //gets the currently selected set's image
             this.getImage = function () {
@@ -272,6 +374,17 @@
             //gets the selected tile of the current tile set
             this.getTile = function (x, y) {
                 return _sets[_currentImage].tiles[x][y];
+            }
+
+            //populate tile settings UI
+            function populateTileSettings() {
+                //get the selected tile and populate
+                if (that.selectedTile != null) {
+                    $('#direction-up').prop('checked', that.selectedTile.directions & DIRECTION_UP);
+                    $('#direction-right').prop('checked', that.selectedTile.directions & DIRECTION_RIGHT);
+                    $('#direction-down').prop('checked', that.selectedTile.directions & DIRECTION_DOWN);
+                    $('#direction-left').prop('checked', that.selectedTile.directions & DIRECTION_LEFT);
+                }
             }
 
             //function load images
@@ -464,10 +577,16 @@
                             }
 
                             //add coords
-                            layer.tiles[x + i][y + j] = {
-                                srcX: _tileSetEngine.selectX + i,
-                                srcY: _tileSetEngine.selectY + j
-                            };
+                            var mapTile = new MapTileInfo();
+                            //get the tile info for each tile in the matrix
+                            var tileInfo = _tileSetEngine.getTile(_tileSetEngine.selectX + i, _tileSetEngine.selectY + j);
+                            //set info
+                            mapTile.srcX = _tileSetEngine.selectX + i;
+                            mapTile.srcY = _tileSetEngine.selectY + j;
+                            mapTile.directions = tileInfo.directions;
+                            mapTile.priority = tileInfo.priority;
+
+                            layer.tiles[x + i][y + j] = mapTile;
                         }
                     }
 
@@ -486,11 +605,17 @@
                     for (var j = 0; j < layer.tiles[i].length; j++) {
 
                         //add coords
-                        layer.tiles[i][j] = {
-                            srcX: _tileSetEngine.selectX,
-                            srcY: _tileSetEngine.selectY
-                        };
+                        var mapTile = new MapTileInfo();
+                        //get the tile info for each tile in the matrix
+                        var tileInfo = _tileSetEngine.getTile(_tileSetEngine.selectX, _tileSetEngine.selectY);
+                        //set info
+                        mapTile.srcX = _tileSetEngine.selectX;
+                        mapTile.srcY = _tileSetEngine.selectY;
+                        mapTile.directions = tileInfo.directions;
+                        mapTile.priority = tileInfo.priority;
 
+                        layer.tiles[i][j] = mapTile;
+                        
                     }
                 }
             }

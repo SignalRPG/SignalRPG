@@ -1,13 +1,4 @@
 ﻿
-//tileset directional movement
-var DIRECTION_NONE = 0;
-var DIRECTION_UP = 1;
-var DIRECTION_RIGHT = 2;
-var DIRECTION_DOWN = 4;
-var DIRECTION_LEFT = 8;
-var DIRECTION_ALL = 16;
-
-
 
 //process game time. game time is used to measure the time between each frame, allowing
 //you to control the framerate of animations.
