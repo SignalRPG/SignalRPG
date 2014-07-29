@@ -81,10 +81,10 @@
         </div>
         <div class="col-xs-4">
             <div id="tileset-direction">
-                <input class="up" type="checkbox" />
-                <input class="right" type="checkbox" />
-                <input class="down" type="checkbox" />
-                <input class="left" type="checkbox" />
+                <input id="direction-up" class="up" type="checkbox" />
+                <input id="direction-right" class="right" type="checkbox" />
+                <input id="direction-down" class="down" type="checkbox" />
+                <input id="direction-left" class="left" type="checkbox" />
             </div>
             <canvas id="tileset"></canvas>
         </div>
@@ -155,14 +155,13 @@
         }
 
         //tileset tile
-        function TileSetTile(name, onload) {
+        function TileSet(name, onload) {
             var _self = this;
             this.image = null;
-            this.tiles = null;
+            this.tiles = new Array2D(0, 0);
 
             //load a tileset
             $.getJSON('/resources/tilesets/' + name + '.json', {}, function (data) {
-                var set = new TileSetTile();
                 //set properties
                 _self.image = new Image();
                 _self.image.onload = function () {
@@ -174,6 +173,12 @@
                     //create tiles
                     _self.tiles = new Array2D(x, y);
 
+                    //fill tiles with tile infos
+                    for (var i = 0; i < x; x++) {
+                        for (var j = 0; j < y; j++) {
+                            _self.tiles[i][j] = new TileSetTileInfo();
+                        }
+                    }
 
                     //call callback
                     if (typeof onload == 'function') {
@@ -246,6 +251,10 @@
                 //place selection here
                 that.selectX = Math.floor(e.offsetX / TILE_W);
                 that.selectY = Math.floor(e.offsetY / TILE_H);
+
+                //get the selected tile info
+                that.selectedTile = that.getTile(that.selectX, that.selectY);
+                console.log(that.selectedTile);
             });
 
             //mouse was released
@@ -253,20 +262,27 @@
                 _mouseDown = false;
             });
 
+            $('#')
+
             //gets the currently selected set's image
             this.getImage = function () {
                 return _sets[_currentImage].image;
+            }
+
+            //gets the selected tile of the current tile set
+            this.getTile = function (x, y) {
+                return _sets[_currentImage].tiles[x][y];
             }
 
             //function load images
             function loadTileset() {
 
                 //load a tileset
-                var set = new TileSetTile('001-Grassland01', function () { selectImage(0); });
-                
+                var set = new TileSet('001-Grassland01', function () { selectImage(0); });
+
                 //add set to array
                 _sets.push(set);
-                
+
             }
 
             //selects the current image
