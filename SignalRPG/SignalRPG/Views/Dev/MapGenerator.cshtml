@@ -75,17 +75,34 @@
             </div>
             <button id="save-map" type="button">Save</button>
             <hr />
-            <div class="well">
+            <div id="map-json" class="well">
 
             </div>
         </div>
         <div class="col-xs-4">
-            <div id="tileset-direction">
-                <input id="direction-up" class="up" type="checkbox" />
-                <input id="direction-right" class="right" type="checkbox" />
-                <input id="direction-down" class="down" type="checkbox" />
-                <input id="direction-left" class="left" type="checkbox" />
+            <select id="tileset-select" class="form-control">
+
+            </select>
+            <div class="clearfix">
+
+                <div id="tileset-direction" class="pull-left">
+                    <input id="direction-up" class="up" type="checkbox" />
+                    <input id="direction-right" class="right" type="checkbox" />
+                    <input id="direction-down" class="down" type="checkbox" />
+                    <input id="direction-left" class="left" type="checkbox" />
+                </div>
+
+                <div id="tileset-priority" class="pull-left">
+                    <label>
+                        <input id="priority-below" type="radio" name="priority" value="0" /> Below
+                    </label>
+                    <label>
+                        <input id="priority-above" type="radio" name="priority" value="1" /> Above
+                    </label>
+                </div>
+
             </div>
+
             <canvas id="tileset"></canvas>
             <button id="save-tileset" type="button">Save</button>
             <hr />
@@ -99,6 +116,9 @@
 
 @section scripts{
     <script>
+
+        /// <reference path="/scripts/game-classes.js" />
+
         var TILE_W = 32;
         var TILE_H = 32;
 
@@ -128,7 +148,6 @@
             }
 
             //renders a particular tileset to the backbuffer
-            //TODO: need the ability to specify more than one tileset?
             this.draw = function (tileset) {
 
                 //clear
@@ -140,7 +159,7 @@
                         var tile = that.tiles[i][j];
                         if (tile != undefined && tile != null) {
                             //draw tile
-                            _ctx.drawImage(tileset,
+                            _ctx.drawImage(tileset.getImage(tile.set),
                                 tile.srcX * TILE_W, tile.srcY * TILE_H, TILE_W, TILE_H,
                                 i * TILE_W, j * TILE_H, TILE_W, TILE_H);
                         }
@@ -161,6 +180,7 @@
         function MapTileInfo() {
             this.srcX = 0;
             this.srcY = 0;
+            this.set = 0;
             //0 allows all direction
             this.directions = 0;
             //higher priority gets drawn on top of all other tiles below it
@@ -174,6 +194,7 @@
             this.frames = 1;
             this.image = new Image();
             this.tiles = new Array2D(0, 0);
+            this.size = new Size();
 
             //load a tileset
             $.getJSON('/resources/tilesets/' + name + '.json', {}, function (data) {
@@ -181,8 +202,8 @@
                 _self.image = new Image();
                 _self.image.onload = function () {
 
-                    //get number of tiles
-                    var x = _self.image.width / TILE_W;
+                    //get number of tiles. frames divide the x based on how many frames there are
+                    var x = (_self.image.width / TILE_W) / data.frames;
                     var y = _self.image.height / TILE_H;
 
                     //create tiles
@@ -194,15 +215,21 @@
                             var tileInfo = new TileSetTileInfo();
 
                             _self.tiles[i][j] = tileInfo;
-                            //get the settings from the json tiles
-                            var tileData = data.tiles[i][j];
-                            //set the settings
-                            tileInfo.directions = tileData.directions;
-                            tileInfo.priority = tileData.priority;
 
+                            if (data.tiles != undefined) {
+                                //get the settings from the json tiles
+                                var tileData = data.tiles[i][j];
+                                //set the settings
+                                tileInfo.directions = tileData.directions;
+                                tileInfo.priority = tileData.priority;
+                            }
                             //tileInfo.directions = DIRECTION_ALL;
                         }
                     }
+
+                    //set size in grid
+                    _self.size.width = x;
+                    _self.size.height = y;
 
                     //call callback
                     if (typeof onload == 'function') {
@@ -222,15 +249,14 @@
         function TileSetEngine() {
             var that = this;
 
-            this.tileset = document.getElementById('tileset');
-            var _ctx = this.tileset.getContext("2d");
+            var _tileset = document.getElementById('tileset');
+            var _ctx = _tileset.getContext("2d");
 
 
             //where the mouse is over the grid
-            var _gridX = 0;
-            var _gridY = 0;
+            var _hover = new Point(0, 0);
             var _mouseDown = false;
-            var _currentImage = 0;
+            this.selectedSet = null;
 
 
             //selection. x,y and w,h
@@ -240,18 +266,18 @@
             this.selectH = 1;
             this.selectedTile = null;
 
-            //our images
-            var _sets = [];
+            //our tilesets
+            this.sets = [];
 
             //on mouse move, calculate the grid x,y coord based on mouse pos
             $('#tileset').mousemove(function (e) {
-                _gridX = Math.floor(e.offsetX / TILE_W);
-                _gridY = Math.floor(e.offsetY / TILE_H);
+                _hover.x = Math.floor(e.offsetX / TILE_W);
+                _hover.y = Math.floor(e.offsetY / TILE_H);
 
                 if (_mouseDown) {
                     //our select W, H will increase or descrease, depending on where we placed the selection
-                    var sizeW = (_gridX + 1) - that.selectX;
-                    var sizeH = (_gridY + 1) - that.selectY;
+                    var sizeW = (_hover.x + 1) - that.selectX;
+                    var sizeH = (_hover.y + 1) - that.selectY;
 
                     that.selectW = sizeW;
                     that.selectH = sizeH;
@@ -266,9 +292,8 @@
                 that.selectH = 1;
 
                 //select the brush by default
-                $('#toolbar-commands .brush').button('toggle')
-                //$('#toolbar-commands input[value="brush"').prop('checked', 'checked').trigger('change');
-
+                $('#toolbar-commands .brush').button('toggle');
+                
                 //mouse is down
                 _mouseDown = true;
 
@@ -293,12 +318,7 @@
                 if (that.selectedTile != null) {
                     var checked = $(this).prop('checked');
                     //bitwise operations
-                    if (checked) {
-                        that.selectedTile.directions |= DIRECTION_UP;
-                    }
-                    else {
-                        that.selectedTile.directions &= ~DIRECTION_UP;
-                    }
+                    setDirections(DIRECTION_UP, checked);
 
                 }
             });
@@ -308,12 +328,7 @@
                 if (that.selectedTile != null) {
                     var checked = $(this).prop('checked');
                     //bitwise operations
-                    if (checked) {
-                        that.selectedTile.directions |= DIRECTION_RIGHT;
-                    }
-                    else {
-                        that.selectedTile.directions &= ~DIRECTION_RIGHT;
-                    }
+                    setDirections(DIRECTION_RIGHT, checked);
 
                 }
             });
@@ -323,12 +338,7 @@
                 if (that.selectedTile != null) {
                     var checked = $(this).prop('checked');
                     //bitwise operations
-                    if (checked) {
-                        that.selectedTile.directions |= DIRECTION_DOWN;
-                    }
-                    else {
-                        that.selectedTile.directions &= ~DIRECTION_DOWN;
-                    }
+                    setDirections(DIRECTION_DOWN, checked);
 
                 }
             });
@@ -338,14 +348,23 @@
                 if (that.selectedTile != null) {
                     var checked = $(this).prop('checked');
                     //bitwise operations
-                    if (checked) {
-                        that.selectedTile.directions |= DIRECTION_LEFT;
-                    }
-                    else {
-                        that.selectedTile.directions &= ~DIRECTION_LEFT;
-                    }
+                    setDirections(DIRECTION_LEFT, checked);
+                    
+                }
+            });
+
+            //handle priority click
+            $('#tileset-priority input[type="radio"]').click(function () {
+
+                //get all selected tiles
+                var tiles = that.getSelectedTiles();
+                for (var i = 0; i < tiles.length; i++) {
+                    var tile = tiles[i];
+
+                    tile.priority = $(this).val();
 
                 }
+
             });
 
             //save the json data
@@ -361,19 +380,57 @@
                 $('#tileset-json').html(JSON.stringify(obj));
             });
 
+            //tileset is selected
+            $('#tileset-select').change(function () {
+                selectTileset(parseInt($(this).val()));
+            });
+
+            //returns an array of selected tiles
+            this.getSelectedTiles = function () {
+                var tiles = [];
+                for (var i = 0; i < that.selectW; i++) {
+                    for (var j = 0; j < that.selectH; j++) {
+                        //add tile to list of selected tiles
+                        tiles.push(that.getTile(that.selectX + i, that.selectY + j));
+                    }
+                }
+
+                return tiles;
+            }
+
             //gets the current tileset
-            this.getSet = function(){
-                return _sets[_currentImage];
+            this.getSet = function () {
+                return that.sets[that.selectedSet];
             }
 
             //gets the currently selected set's image
-            this.getImage = function () {
-                return _sets[_currentImage].image;
+            this.getImage = function (index) {
+                var i = (index != undefined ? index : that.selectedSet);
+                return that.sets[i].image;
             }
 
             //gets the selected tile of the current tile set
             this.getTile = function (x, y) {
-                return _sets[_currentImage].tiles[x][y];
+                return that.sets[that.selectedSet].tiles[x][y];
+            }
+
+            //adds or removes a direction for all selected tiles
+            function setDirections(direction, checked) {
+                
+                //get all selected tiles
+                var tiles = that.getSelectedTiles();
+                for (var i = 0; i < tiles.length; i++) {
+                    var tile = tiles[i];
+
+                    //bitwise operations
+                    if (checked) {
+                        tile.directions |= direction;
+                    }
+                    else {
+                        tile.directions &= ~direction;
+                    }
+
+                }
             }
 
             //populate tile settings UI
@@ -384,39 +441,49 @@
                     $('#direction-right').prop('checked', that.selectedTile.directions & DIRECTION_RIGHT);
                     $('#direction-down').prop('checked', that.selectedTile.directions & DIRECTION_DOWN);
                     $('#direction-left').prop('checked', that.selectedTile.directions & DIRECTION_LEFT);
+
+                    //set priority
+                    $('#tileset-priority input[type="radio"][value="' + that.selectedTile.priority + '"]').prop('checked', true);
                 }
             }
 
             //function load images
             function loadTileset() {
-
-                //load a tileset
-                var set = new TileSet('001-Grassland01', function () { selectImage(0); });
-
+                               
                 //add set to array
-                _sets.push(set);
+                that.sets.push(new TileSet('001-Grassland01', function () { selectTileset(0); }));
+                that.sets.push(new TileSet('001-G_Water01'));
 
+                //add items to select list
+                for (var i = 0; i < that.sets.length; i++) {
+                    var set = that.sets[i];
+
+                    var opt = new Option(set.name, i);
+                    $('#tileset-select').append(opt);
+                }
+                
             }
 
             //selects the current image
-            function selectImage(index) {
-                _currentImage = index;
-                var image = that.getImage();
+            function selectTileset(index) {
+                that.selectedSet = index;
+                //set tileset
+                var set = that.getSet();
                 //image has loaded. set tileset size to size of image
-                adjustTileSet(image.width / TILE_W, image.height / TILE_H);
+                adjustTileSet(set.size.width, set.size.height);
             }
 
             //generates a grid of map tiles
             function adjustTileSet(w, h) {
 
-                that.tileset.width = w * TILE_W;
-                that.tileset.height = h * TILE_H;
+                _tileset.width = w * TILE_W;
+                _tileset.height = h * TILE_H;
             }
 
             //draw map
             function draw() {
                 //clear
-                _ctx.clearRect(0, 0, that.tileset.width, that.tileset.height);
+                _ctx.clearRect(0, 0, _tileset.width, _tileset.height);
 
                 //draw the image
                 var image = that.getImage();
@@ -432,7 +499,7 @@
 
                 //draw the tile square where the mouse is
                 _ctx.fillStyle = "rgba(0,0,0, 0.5)";
-                _ctx.fillRect(_gridX * TILE_W, _gridY * TILE_H, TILE_W, TILE_H);
+                _ctx.fillRect(_hover.x * TILE_W, _hover.y * TILE_H, TILE_W, TILE_H);
 
                 //get frame
                 window.requestAnimationFrame(draw);
@@ -458,8 +525,7 @@
             var _defY = 16;
 
             //where the mouse is over the grid
-            var _gridX = 0;
-            var _gridY = 0;
+            var _hover = new Point(0, 0);
 
             var _layers = [];
             var _activeLayer = 0;
@@ -481,8 +547,8 @@
 
             //on mouse move, calculate the grid x,y coord based on mouse pos
             $('#map').mousemove(function (e) {
-                _gridX = Math.floor(e.offsetX / TILE_W);
-                _gridY = Math.floor(e.offsetY / TILE_H);
+                _hover.x = Math.floor(e.offsetX / TILE_W);
+                _hover.y = Math.floor(e.offsetY / TILE_H);
 
                 if (_mouseDown) {
                     //execute the selected draw command
@@ -526,6 +592,38 @@
 
             $('#save-map').click(function () {
                 //take the layers and generate a map.
+
+                var tilesets = [];
+                var layers = [];
+                
+                //create the tilesets
+                for (var i = 0; i < _tileSetEngine.sets.length; i++) {
+                    var set = _tileSetEngine.sets[i];
+
+                    tilesets.push({
+                        src: set.image.src,
+                        frames: set.frames,
+                        size: set.size
+                    });
+                }
+
+                //create the layers
+                for (var i = 0; i < _layers.length; i++) {
+                    var layer = _layers[i];
+
+                    layers.push({
+                        tiles: layer.tiles
+                    });
+                }
+                               
+
+                //build map info
+                var obj = {
+                    tilesets: tilesets,
+                    layers: layers
+                }
+
+                $('#map-json').html(JSON.stringify(obj));
             });
 
             //execute the selected draw command
@@ -583,6 +681,7 @@
                             //set info
                             mapTile.srcX = _tileSetEngine.selectX + i;
                             mapTile.srcY = _tileSetEngine.selectY + j;
+                            mapTile.set = _tileSetEngine.selectedSet;
                             mapTile.directions = tileInfo.directions;
                             mapTile.priority = tileInfo.priority;
 
@@ -611,11 +710,12 @@
                         //set info
                         mapTile.srcX = _tileSetEngine.selectX;
                         mapTile.srcY = _tileSetEngine.selectY;
+                        mapTile.set = _tileSetEngine.selectedSet;
                         mapTile.directions = tileInfo.directions;
                         mapTile.priority = tileInfo.priority;
 
                         layer.tiles[i][j] = mapTile;
-                        
+
                     }
                 }
             }
@@ -674,7 +774,7 @@
                     var layer = _layers[i];
 
                     //draw this tileset
-                    layer.draw(_tileSetEngine.getImage());
+                    layer.draw(_tileSetEngine);
                     //draw layer
                     _ctx.globalAlpha = 0.3;
                     if (i == _activeLayer || _activeLayer < 0) {
@@ -697,14 +797,14 @@
                         //draw the tile preview based on the selected tileset
                         _ctx.drawImage(_tileSetEngine.getImage(),
                             _tileSetEngine.selectX * TILE_W, _tileSetEngine.selectY * TILE_H, _tileSetEngine.selectW * TILE_W, _tileSetEngine.selectH * TILE_H,
-                            _gridX * TILE_W, _gridY * TILE_H, _tileSetEngine.selectW * TILE_W, _tileSetEngine.selectH * TILE_H);
+                            _hover.x * TILE_W, _hover.y * TILE_H, _tileSetEngine.selectW * TILE_W, _tileSetEngine.selectH * TILE_H);
                     }
                     else {
                         //draw the tile square where the mouse is
                         //draw the tile preview based on the selected tileset
                         _ctx.drawImage(_tileSetEngine.getImage(),
                             _tileSetEngine.selectX * TILE_W, _tileSetEngine.selectY * TILE_H, TILE_W, TILE_H,
-                            _gridX * TILE_W, _gridY * TILE_H, TILE_W, TILE_H);
+                            _hover.x * TILE_W, _hover.y * TILE_H, TILE_W, TILE_H);
                     }
                 }
 

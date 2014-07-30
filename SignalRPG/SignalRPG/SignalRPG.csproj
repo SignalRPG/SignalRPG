@@ -133,7 +133,7 @@
     <Content Include="fonts\glyphicons-halflings-regular.eot" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <Content Include="Content\bootstrap.css.map" />
-    <Content Include="resources\autotiles\001-G_Water01.png" />
+    <Content Include="resources\tilesets\001-G_Water01.png" />
     <Content Include="resources\characters\001-Fighter01.png" />
     <Content Include="resources\characters\013-Warrior01.png" />
     <Content Include="resources\characters\092-Monster06.png" />
@@ -147,6 +147,7 @@
     <Content Include="resources\maps\map4.json" />
     <Content Include="resources\tilesets\001-Grassland01.json" />
     <Content Include="Scripts\game-classes.js" />
+    <Content Include="resources\tilesets\001-G_Water01.json" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />

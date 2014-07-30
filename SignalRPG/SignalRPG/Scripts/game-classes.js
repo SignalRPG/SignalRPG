@@ -26,3 +26,35 @@ function Array2D(x, y) {
 
     return _arr;
 }
+
+//point. encapsulates two int values
+function Point(x, y)
+{
+    var _self = this;
+
+    this.x = x || 0;
+    this.y = y || 0;
+}
+
+//size. encapsulates two int values
+function Size(width, height) {
+    var _self = this;
+
+    this.width = width || 0;
+    this.height = height || 0;
+
+    //returns the square area
+    this.area = function () {
+        return _self.width * _self.height;
+    }
+}
+
+//rectangle
+function Rect(x, y, width, height) {
+    var _self = this;
+
+    this.x = x || 0;
+    this.y = y || 0;
+    this.width = width || 0;
+    this.height = height || 0;
+}
