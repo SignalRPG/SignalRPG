@@ -8,7 +8,14 @@
 
 
     <div class="form-inline">
-
+        <div class="form-group">
+            <label for="map-name">Name</label>
+            <input id="map-name" type="text" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="map-region">Region</label>
+            <input id="map-region" type="text" class="form-control" />
+        </div>
         <div class="form-group">
             <label for="map-width">Width</label>
             <input id="map-width" type="text" class="form-control" />
@@ -521,8 +528,9 @@
             var _tileSetEngine = new TileSetEngine();
             var _canvas = document.getElementById('map');
             var _ctx = _canvas.getContext("2d");
-            var _defX = 25;
-            var _defY = 16;
+            
+            //size of map (in grid units)
+            var _mapSize = new Size(20, 10);
 
             //where the mouse is over the grid
             var _hover = new Point(0, 0);
@@ -619,6 +627,7 @@
 
                 //build map info
                 var obj = {
+                    size: _mapSize,
                     tilesets: tilesets,
                     layers: layers
                 }
@@ -669,7 +678,7 @@
                         for (var j = 0; j < _tileSetEngine.selectH; j++) {
 
                             //make sure x + i and y + j do not go out of map bounds
-                            if (x + i > _defX - 1 || y + j > _defY) {
+                            if (x + i > _mapSize.width - 1 || y + j > _mapSize.height) {
                                 //skip over this iteration because it goes out of bounds
                                 continue;
                             }
@@ -750,8 +759,8 @@
 
             //generates a grid of map tiles
             function adjustMap(w, h) {
-                _defX = w;
-                _defY = h;
+                _mapSize.width = w;
+                _mapSize.height = h;
 
                 _canvas.width = w * TILE_W;
                 _canvas.height = h * TILE_H;
@@ -813,12 +822,12 @@
             }
 
             //create layers
-            _layers.push(new Layer(_defX, _defY));
-            _layers.push(new Layer(_defX, _defY));
-            _layers.push(new Layer(_defX, _defY));
+            _layers.push(new Layer(_mapSize.width, _mapSize.height));
+            _layers.push(new Layer(_mapSize.width, _mapSize.height));
+            _layers.push(new Layer(_mapSize.width, _mapSize.height));
 
             //initial map size
-            adjustMap(_defX, _defY);
+            adjustMap(_mapSize.width, _mapSize.height);
 
             //get frame
             window.requestAnimationFrame(draw);
