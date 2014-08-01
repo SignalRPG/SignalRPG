@@ -1,4 +1,8 @@
 ﻿
+//size of tiles in pixels
+var TILE_W = 32;
+var TILE_H = 32;
+
 //tileset directional movement
 var DIRECTION_NONE = 0;
 var DIRECTION_UP = 1;

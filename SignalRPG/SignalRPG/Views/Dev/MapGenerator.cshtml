@@ -120,17 +120,12 @@
     </div>
 </div>
 
+@Scripts.Render("~/bundles/game")
 
 @section scripts{
     <script>
-
+        //for intellisence
         /// <reference path="/scripts/game-classes.js" />
-
-        var TILE_W = 32;
-        var TILE_H = 32;
-
-
-
 
 
         //layer draws all the tiles in a grid.
@@ -263,7 +258,7 @@
             //where the mouse is over the grid
             var _hover = new Point(0, 0);
             var _mouseDown = false;
-            this.selectedSet = null;
+            this.selectedSet = -1;
 
 
             //selection. x,y and w,h
@@ -492,12 +487,13 @@
                 //clear
                 _ctx.clearRect(0, 0, _tileset.width, _tileset.height);
 
-                //draw the image
-                var image = that.getImage();
-                _ctx.drawImage(image,
-                    0, 0, image.width, image.height,
-                    0, 0, image.width, image.height);
-
+                if (that.selectedSet >= 0) {
+                    //draw the image
+                    var image = that.getImage();
+                    _ctx.drawImage(image,
+                        0, 0, image.width, image.height,
+                        0, 0, image.width, image.height);
+                }
 
                 //draw the tile square where the selection is
                 _ctx.strokeStyle = "rgb(0,128,255)";
@@ -530,7 +526,7 @@
             var _ctx = _canvas.getContext("2d");
             
             //size of map (in grid units)
-            var _mapSize = new Size(20, 10);
+            var _mapSize = new Size(20, 12);
 
             //where the mouse is over the grid
             var _hover = new Point(0, 0);

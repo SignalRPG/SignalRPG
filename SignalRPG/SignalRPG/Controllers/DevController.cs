@@ -19,5 +19,11 @@ namespace SignalRPG.Controllers
         {
             return View();
         }
+
+        // GET: Dev/GameTest
+        public ActionResult GameTest()
+        {
+            return View();
+        }
     }
 }

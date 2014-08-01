@@ -26,8 +26,12 @@ namespace SignalRPG
 
             //css
             bundles.Add(new StyleBundle("~/bundles/css").Include(
-                        "~/Content/bootstrap.min.css",
-                        "~/Content/site.css"));
+                "~/Content/bootstrap.min.css",
+                "~/Content/site.css"));
+
+            //css
+            bundles.Add(new StyleBundle("~/bundles/game-css").Include(
+                "~/Content/game.css"));
         }
     }
 }

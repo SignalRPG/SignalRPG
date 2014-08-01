@@ -1,4 +1,7 @@
-﻿
+﻿//for intellisence
+/// <reference path="/scripts/game-classes.js" />
+/// <reference path="/scripts/game-map.js" />
+
 
 //process game time. game time is used to measure the time between each frame, allowing
 //you to control the framerate of animations.
@@ -26,15 +29,72 @@ function GameTime() {
 }
 
 //game engine
-function GameEngine() {
+function GameEngine(view) {
+    var _self = this;
 
     //game time object
     var _gameTime = new GameTime();
+    //frame counter
+    var _fpsLast = 0;
+    var _fps = 0;
+
+    //backbuffer. all drawing is rendered here first. only a portion of the backbuffer is drawn
+    //and copied to the view context
+    var _buffer = document.createElement('canvas');
+    var _bufferCtx = _buffer.getContext('2d');
+    //view context
+    var _view = document.getElementById(view);
+    var _viewCtx = _view.getContext('2d');
+
+    //set the MAX size that our viewport can be in grid units
+    var _maxSize = new Size(20, 12);
+
+    //create our viewport. this is adjusted to simulate scrolling the map
+    var _viewPort = new Rect(0, 0, 0, 0);
+
+    //indicates that the map has been loaded
+    var _mapLoaded = false;
     //map instance
-    var _map = new Map('map-test');
+    var _map = new Map('map-test', function () {
+        _mapLoaded = true;
+        //resize the back buffer
+        resizeBuffer(_map.size.width, _map.size.height);
+    });
+    
+    //resize the view in pixels
+    this.resizeView = function () {
+        var viewCanvas = document.getElementById(view);
+        //we need to get the dimensions of the view canvas
+        _viewPort.width = viewCanvas.width;
+        _viewPort.height = viewCanvas.height;
+    }
+
+    //initialization code
+    function initialize() {
+        //we need to get the dimensions of the view canvas
+        _self.resizeView();
+
+    }
+
+    //resizes the backbuffer in grid units
+    function resizeBuffer(x, y) {
+        //forbid x,y < maxsize 
+        if (x < _maxSize.width) x = _maxSize.width;
+        if (y < _maxSize.height) y = _maxSize.height;
+        //calculate new size
+        _buffer.width = x * TILE_W;
+        _buffer.height = y * TILE_H;
+    }
+
+
+    var fps = 0, now, lastUpdate = (new Date) * 1;
+    var fpsFilter = 50;
 
     //update system
     function system() {
+
+        //clear the view context
+        _bufferCtx.clearRect(0, 0, _viewPort.width, _viewPort.height);
 
         //update system gametime
         _gameTime.update();
@@ -43,7 +103,24 @@ function GameEngine() {
         update(_gameTime);
 
         //draw
-        draw(_gameTime);
+        draw(_bufferCtx, _gameTime);
+        
+        //clear the view context
+        _viewCtx.fillStyle = 'rgb(0,0,0)';
+        _viewCtx.fillRect(0, 0, _viewPort.width, _viewPort.height);
+
+        _viewCtx.drawImage(_buffer,
+            _viewPort.x, _viewPort.y, _viewPort.width, _viewPort.height,
+            0, 0, _viewPort.width, _viewPort.height);
+
+
+        var thisFrameFPS = 1000 / ((now = new Date) - lastUpdate);
+        if (now != lastUpdate) {
+            fps += (thisFrameFPS - fps) / fpsFilter;
+            lastUpdate = now;
+        }
+        _viewCtx.fillStyle = 'rgb(255,255,255)';
+        _viewCtx.fillText('fps: ' + fps, 10, 50);
 
         //request a frame
         window.requestAnimationFrame(system);
@@ -53,15 +130,18 @@ function GameEngine() {
     function update(gameTime) {
 
         //add update code here
-        
+
     }
 
     //all drawing code
-    function draw(gameTime) {
+    function draw(ctx, gameTime) {
 
         //add drawing code here
-
+        _map.draw(ctx, gameTime);
     }
+
+    //initialize before requesting any frames
+    initialize();
 
     //request a frame
     window.requestAnimationFrame(system);

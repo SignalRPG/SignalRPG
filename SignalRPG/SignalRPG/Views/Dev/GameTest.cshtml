@@ -1,0 +1,40 @@
+﻿@{
+    ViewBag.Title = "GameTest";
+    Layout = "~/Views/Shared/_GameLayout.cshtml";
+}
+
+
+<div id="game-test-container">
+
+    <canvas id="view-canvas"></canvas>
+
+</div>
+
+
+
+@section scripts{
+
+    <script>
+        (function () {
+
+            //game object
+            var _game = new GameEngine('view-canvas');
+
+            //attach to resize event
+            $(window).resize(function () {
+                resizeGame();
+            });
+
+            function resizeGame() {
+                $('#game-test-container').css({ 'width': window.innerWidth - 30, 'height': window.innerHeight - 30 });
+                var canvas = document.getElementById('view-canvas');
+                canvas.width = $('#game-test-container').innerWidth();
+                canvas.height = $('#game-test-container').innerHeight();
+                _game.resizeView();
+            }
+
+            //set initial size based on window size
+            resizeGame();
+        })();
+    </script>
+}

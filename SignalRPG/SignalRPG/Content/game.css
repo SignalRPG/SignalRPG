@@ -1,0 +1,22 @@
+﻿body {
+    margin: 15px;
+    padding: 0;
+}
+
+
+/*game test*/
+#game-test-container {
+    background-color: #ccc;
+    width: 640px;
+    height: 384px;
+    max-width: 640px;
+    max-height: 384px;
+    min-width: 32px;
+    min-height: 32px;
+    margin: 0 auto;
+}
+
+#game-test-container canvas{
+    width: 100%;
+    height: 100%;
+}
