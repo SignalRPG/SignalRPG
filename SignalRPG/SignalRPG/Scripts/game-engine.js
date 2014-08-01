@@ -30,6 +30,8 @@ function GameEngine() {
 
     //game time object
     var _gameTime = new GameTime();
+    //map instance
+    var _map = new Map('map-test');
 
     //update system
     function system() {
