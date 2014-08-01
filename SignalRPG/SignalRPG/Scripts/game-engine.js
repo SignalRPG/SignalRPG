@@ -12,6 +12,7 @@ function GameTime() {
 
     //time system game started
     this.elapsedTime = 0;
+    this.frameTime = 0;
 
     //updates the gametime
     this.update = function () {
@@ -22,9 +23,11 @@ function GameTime() {
         var dt = now - (_time || now);
         //increase elapsed time
         _self.elapsedTime += dt;
+        _self.frameTime = dt;
 
         //set time to now
         _time = now;
+        
     }
 }
 
@@ -52,11 +55,14 @@ function GameEngine(view) {
     //create our viewport. this is adjusted to simulate scrolling the map
     var _viewPort = new Rect(0, 0, 0, 0);
 
-    //indicates that the map has been loaded
-    var _mapLoaded = false;
+    //some effect vars
+    var _mapFade = 0;
+
+    //some counters
+    var _fps = 0;
+
     //map instance
     var _map = new Map('map-test', function () {
-        _mapLoaded = true;
         //resize the back buffer
         resizeBuffer(_map.size.width, _map.size.height);
     });
@@ -87,8 +93,8 @@ function GameEngine(view) {
     }
 
 
-    var fps = 0, now, lastUpdate = (new Date) * 1;
-    var fpsFilter = 50;
+    
+
 
     //update system
     function system() {
@@ -114,13 +120,13 @@ function GameEngine(view) {
             0, 0, _viewPort.width, _viewPort.height);
 
 
-        var thisFrameFPS = 1000 / ((now = new Date) - lastUpdate);
-        if (now != lastUpdate) {
-            fps += (thisFrameFPS - fps) / fpsFilter;
-            lastUpdate = now;
+        var thisFrameFPS = 1000 / _gameTime.frameTime;
+        if (thisFrameFPS != Infinity) {
+            _fps += (thisFrameFPS - _fps) / 50;
+            
         }
         _viewCtx.fillStyle = 'rgb(255,255,255)';
-        _viewCtx.fillText('fps: ' + fps, 10, 50);
+        _viewCtx.fillText('fps: ' + _fps, 10, 50);
 
         //request a frame
         window.requestAnimationFrame(system);

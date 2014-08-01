@@ -6,7 +6,8 @@ function Map(name, loaded) {
 
     //size of map
     this.size = new Size(0, 0);
-
+    //indicates that the map has been loaded
+    this.mapLoaded = false;
     //tilesets. images to draw on a tile
     var _tilesets = [];
 
@@ -46,6 +47,9 @@ function Map(name, loaded) {
 
             //then, get all tiles with priority 1, and layer them last
             createLayers(data, _topLayers, PRIORITY_ABOVE);
+
+            //map is loaded
+            _self.mapLoaded = true;
 
             //loaded callback
             if (typeof loaded == 'function') {
@@ -90,6 +94,7 @@ function Map(name, loaded) {
 
     }
 
+    //draws an array of layers to the buffer
     function drawLayers(ctx, gameTime, layers) {
         //render the layer onto the backbuffer
         for (var k = 0; k < layers.length; k++) {
@@ -117,7 +122,8 @@ function Map(name, loaded) {
         drawLayers(ctx, gameTime, _bottomLayers);
 
         //draw characters and such
-
+        ctx.fillStyle = 'rgb(0,128,255)';
+        ctx.fillRect(7 * TILE_W, 7 * TILE_H, TILE_W, TILE_H);
         //draw top layers
         drawLayers(ctx, gameTime, _topLayers);
 
