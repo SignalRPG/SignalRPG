@@ -74,12 +74,19 @@ function Map(name, loaded) {
             for (var i = 0; i < _self.size.width; i++) {
                 for (var j = 0; j < _self.size.height; j++) {
                     var tile = layer.tiles[i][j];
+
+                    //skip adding the tile if it contains no data
                     if (tile == null) {
                         continue;
                     }
 
                     //check priority
                     if (tile.priority == priority) {
+
+                        //add a frame index
+                        tile.frameIndex = 0;
+                        tile.frameCounter = 0;
+                        //set tile
                         tiles[i][j] = tile;
                         //we added a tile, set the flag
                         addedTile = true;
@@ -93,7 +100,7 @@ function Map(name, loaded) {
         }
 
     }
-
+    var _frameCounter = 0;
     //draws an array of layers to the buffer
     function drawLayers(ctx, gameTime, layers) {
         //render the layer onto the backbuffer
@@ -104,15 +111,44 @@ function Map(name, loaded) {
                 for (var j = 0; j < layer.tiles[i].length; j++) {
                     var tile = layer.tiles[i][j];
                     if (tile != undefined && tile != null) {
+                        //get tileset to draw
+                        var tileset = _tilesets[tile.set];
+
+                        //calculate the frame to draw. for animated tiles
+                        var srcX = tile.srcX + (tile.frameIndex * tileset.size.width);
+                                                
                         //draw tile
-                        ctx.drawImage(_tilesets[tile.set].image,
-                            tile.srcX * TILE_W, tile.srcY * TILE_H, TILE_W, TILE_H,
+                        ctx.drawImage(tileset.image,
+                            srcX * TILE_W, tile.srcY * TILE_H, TILE_W, TILE_H,
                             i * TILE_W, j * TILE_H, TILE_W, TILE_H);
+
+                        
+
+                        //when we are finished drawing, update the frame index for that tile so the next time
+                        //we draw it, we draw from the next frame on the tileset.
+                        if (tileset.frames > 1) {
+                            //update the frame counter
+                            tile.frameCounter += gameTime.frameTime;
+
+                            //when the frame counter is greater than or equal to x time, update and reset counter
+                            if (tile.frameCounter >= 250) {
+                                //update frame index
+                                tile.frameIndex++;
+                                //if we have gone past the frame count -1, then reset back to 0
+                                if (tile.frameIndex > tileset.frames - 1) {
+                                    tile.frameIndex = 0;
+                                }
+                                //reset the tile frame counter
+                                tile.frameCounter = 0;
+                            }
+                        }
                     }
                 }
             }
 
         }
+
+       
     }
 
     //drawing
@@ -124,6 +160,7 @@ function Map(name, loaded) {
         //draw characters and such
         ctx.fillStyle = 'rgb(0,128,255)';
         ctx.fillRect(7 * TILE_W, 7 * TILE_H, TILE_W, TILE_H);
+
         //draw top layers
         drawLayers(ctx, gameTime, _topLayers);
 

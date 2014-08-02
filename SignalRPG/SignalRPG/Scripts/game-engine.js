@@ -2,35 +2,6 @@
 /// <reference path="/scripts/game-classes.js" />
 /// <reference path="/scripts/game-map.js" />
 
-
-//process game time. game time is used to measure the time between each frame, allowing
-//you to control the framerate of animations.
-function GameTime() {
-    //self reference
-    var _self = this;
-    var _time = null;
-
-    //time system game started
-    this.elapsedTime = 0;
-    this.frameTime = 0;
-
-    //updates the gametime
-    this.update = function () {
-        //get current time
-        var now = new Date().getTime();
-
-        //get time system last call
-        var dt = now - (_time || now);
-        //increase elapsed time
-        _self.elapsedTime += dt;
-        _self.frameTime = dt;
-
-        //set time to now
-        _time = now;
-        
-    }
-}
-
 //game engine
 function GameEngine(view) {
     var _self = this;
