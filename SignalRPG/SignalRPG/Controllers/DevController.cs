@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SignalRPG.Models;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
@@ -17,7 +18,15 @@ namespace SignalRPG.Controllers
         // GET: Dev/MapGenerator
         public ActionResult MapGenerator()
         {
-            return View();
+            var m = new Class1();
+            return View(m);
+        }
+
+        // GET: Dev/MapGenerator
+        [HttpPost]
+        public ActionResult MapGenerator(Class1 m)
+        {
+            return View(m);
         }
 
         // GET: Dev/GameTest

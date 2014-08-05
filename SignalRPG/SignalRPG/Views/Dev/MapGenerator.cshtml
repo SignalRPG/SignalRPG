@@ -1,4 +1,5 @@
-﻿@{
+﻿@model SignalRPG.Models.Class1
+@{
     ViewBag.Title = "MapGenerator";
 }
 
@@ -80,16 +81,24 @@
             <div id="map-container">
                 <canvas id="map"></canvas>
             </div>
-            <button id="save-map" type="button">Save</button>
+
+            @using (Html.BeginForm("MapGenerator", "Dev", FormMethod.Post))
+            {
+
+                @Html.HiddenFor(x => x.MapJson)
+
+                <button id="save-map" type="submit">Save</button>
+
+            }
+
+
             <hr />
             <div id="map-json" class="well">
 
             </div>
         </div>
         <div class="col-xs-4">
-            <select id="tileset-select" class="form-control">
-
-            </select>
+            <select id="tileset-select" class="form-control"></select>
             <div class="clearfix">
 
                 <div id="tileset-direction" class="pull-left">
@@ -296,7 +305,7 @@
 
                 //select the brush by default
                 $('#toolbar-commands .brush').button('toggle');
-                
+
                 //mouse is down
                 _mouseDown = true;
 
@@ -352,7 +361,7 @@
                     var checked = $(this).prop('checked');
                     //bitwise operations
                     setDirections(DIRECTION_LEFT, checked);
-                    
+
                 }
             });
 
@@ -419,7 +428,7 @@
 
             //adds or removes a direction for all selected tiles
             function setDirections(direction, checked) {
-                
+
                 //get all selected tiles
                 var tiles = that.getSelectedTiles();
                 for (var i = 0; i < tiles.length; i++) {
@@ -452,7 +461,7 @@
 
             //function load images
             function loadTileset() {
-                               
+
                 //add set to array
                 that.sets.push(new TileSet('001-Grassland01', function () { selectTileset(0); }));
                 that.sets.push(new TileSet('001-G_Water01'));
@@ -464,7 +473,7 @@
                     var opt = new Option(set.name, i);
                     $('#tileset-select').append(opt);
                 }
-                
+
             }
 
             //selects the current image
@@ -525,7 +534,7 @@
             var _tileSetEngine = new TileSetEngine();
             var _canvas = document.getElementById('map');
             var _ctx = _canvas.getContext("2d");
-            
+
             //size of map (in grid units)
             var _mapSize = new Size(20, 12);
 
@@ -600,7 +609,7 @@
 
                 var tilesets = [];
                 var layers = [];
-                
+
                 //create the tilesets
                 for (var i = 0; i < _tileSetEngine.sets.length; i++) {
                     var set = _tileSetEngine.sets[i];
@@ -620,7 +629,7 @@
                         tiles: layer.tiles
                     });
                 }
-                               
+
 
                 //build map info
                 var obj = {
