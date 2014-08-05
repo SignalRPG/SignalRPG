@@ -150,6 +150,7 @@
     <Content Include="Scripts\game-classes.js" />
     <Content Include="resources\tilesets\001-G_Water01.json" />
     <Content Include="resources\maps\map-test.json" />
+    <Content Include="resources\maps\map-boundry-test.json" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />

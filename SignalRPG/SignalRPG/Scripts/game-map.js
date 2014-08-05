@@ -48,6 +48,58 @@ function Map(name, loaded) {
             //then, get all tiles with priority 1, and layer them last
             createLayers(data, _topLayers, PRIORITY_ABOVE);
 
+            var layer = _bottomLayers[0];
+            //edge detection
+            for (var i = 0; i < _self.size.width; i++) {
+                for (var j = 0; j < _self.size.height; j++) {
+                    var tile = layer.tiles[i][j];
+                    var tiles = layer.tiles;
+
+                    if (tile != null && tile.set == 1) {
+                        //look around the tile
+                        var xb = i - 1;
+                        var xa = i + 1;
+                        var yb = j - 1;
+                        var ya = j + 1;
+
+                        if (xb < 0 || xa > _self.size.width - 1 || yb < 0 || ya > _self.size.height - 1) {
+                            continue;
+                        }
+
+
+                        //check to see if the tile has anything else around it
+                        if (tiles[i][yb] != null && tiles[i][yb].set == 0) {
+                            tile.type |= DIRECTION_UP;
+                        }
+                        if (tiles[xa][j] != null && tiles[xa][j].set == 0) {
+                            tile.type |= DIRECTION_RIGHT;
+                        }
+                        if (tiles[i][ya] != null && tiles[i][ya].set == 0) {
+                            tile.type |= DIRECTION_DOWN;
+                        }
+                        if (tiles[xb][j] != null && tiles[xb][j].set == 0) {
+                            tile.type |= DIRECTION_LEFT;
+                        }
+
+
+                    }
+
+                }
+            }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
             //map is loaded
             _self.mapLoaded = true;
 
@@ -100,7 +152,7 @@ function Map(name, loaded) {
         }
 
     }
-    var _frameCounter = 0;
+
     //draws an array of layers to the buffer
     function drawLayers(ctx, gameTime, layers) {
         //render the layer onto the backbuffer
@@ -116,13 +168,35 @@ function Map(name, loaded) {
 
                         //calculate the frame to draw. for animated tiles
                         var srcX = tile.srcX + (tile.frameIndex * tileset.size.width);
-                                                
+
                         //draw tile
                         ctx.drawImage(tileset.image,
                             srcX * TILE_W, tile.srcY * TILE_H, TILE_W, TILE_H,
                             i * TILE_W, j * TILE_H, TILE_W, TILE_H);
 
-                        
+                        //TEST
+                        if (tile.type > 0) {
+                            var r = 0;
+                            var g = 0;
+                            var b = 0;
+                            if (tile.type & DIRECTION_UP) {
+                                r = 255;
+                            }
+                            if (tile.type & DIRECTION_RIGHT) {
+                                g = 255;
+                            }
+                            if (tile.type & DIRECTION_DOWN) {
+                                b = 255;
+                            }
+                            if (tile.type & DIRECTION_LEFT) {
+                                r -= 128;
+                                g -= 128;
+                                b -= 128;
+                            }
+
+                            ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                            ctx.strokeRect(i * TILE_W, j * TILE_H, TILE_W, TILE_H);
+                        }
 
                         //when we are finished drawing, update the frame index for that tile so the next time
                         //we draw it, we draw from the next frame on the tileset.
@@ -148,7 +222,7 @@ function Map(name, loaded) {
 
         }
 
-       
+
     }
 
     //drawing

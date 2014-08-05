@@ -33,7 +33,7 @@ function GameEngine(view) {
     var _fps = 0;
 
     //map instance
-    var _map = new Map('map-test', function () {
+    var _map = new Map('map-boundry-test', function () {
         //resize the back buffer
         resizeBuffer(_map.size.width, _map.size.height);
     });
@@ -62,11 +62,7 @@ function GameEngine(view) {
         _buffer.width = x * TILE_W;
         _buffer.height = y * TILE_H;
     }
-
-
     
-
-
     //update system
     function system() {
 
