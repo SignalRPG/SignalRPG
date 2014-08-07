@@ -69,18 +69,17 @@ function Map(name, loaded) {
 
                         //check to see if the tile has anything else around it
                         if (tiles[i][yb] != null && tiles[i][yb].set == 0) {
-                            tile.type |= DIRECTION_UP;
+                            tile.type |= AUTOTILE_TOP;
                         }
                         if (tiles[xa][j] != null && tiles[xa][j].set == 0) {
-                            tile.type |= DIRECTION_RIGHT;
+                            tile.type |= AUTOTILE_RIGHT;
                         }
                         if (tiles[i][ya] != null && tiles[i][ya].set == 0) {
-                            tile.type |= DIRECTION_DOWN;
+                            tile.type |= AUTOTILE_BOTTOM;
                         }
                         if (tiles[xb][j] != null && tiles[xb][j].set == 0) {
-                            tile.type |= DIRECTION_LEFT;
+                            tile.type |= AUTOTILE_LEFT;
                         }
-
 
                     }
 
@@ -89,7 +88,41 @@ function Map(name, loaded) {
 
 
 
+            //edge detection
+            for (var i = 0; i < _self.size.width; i++) {
+                for (var j = 0; j < _self.size.height; j++) {
+                    var tile = layer.tiles[i][j];
+                    var tiles = layer.tiles;
 
+                    if (tile != null && tile.set == 1) {
+                        //look around the tile
+                        var xb = i - 1;
+                        var xa = i + 1;
+                        var yb = j - 1;
+                        var ya = j + 1;
+
+                        if (xb < 0 || xa > _self.size.width - 1 || yb < 0 || ya > _self.size.height - 1) {
+                            continue;
+                        }
+
+
+                        //check if inner corner
+                        if (tiles[i][yb] != null && tiles[i][yb].type & (AUTOTILE_TOP | AUTOTILE_RIGHT)
+                            && tiles[xa][j] != null && tiles[xa][j].type & (AUTOTILE_TOP)) {
+
+                            tile.type = AUTOTILE_INNER_TOP_RIGHT;
+                        }
+
+                        if (tiles[i][yb] != null && tiles[i][yb].type & (AUTOTILE_TOP | AUTOTILE_LEFT)
+                            && tiles[xb][j] != null && tiles[xb][j].type & (AUTOTILE_TOP)) {
+
+                            tile.type = AUTOTILE_INNER_TOP_LEFT;
+                        }
+
+                    }
+
+                }
+            }
 
 
 
@@ -176,26 +209,16 @@ function Map(name, loaded) {
 
                         //TEST
                         if (tile.type > 0) {
-                            var r = 0;
-                            var g = 0;
-                            var b = 0;
-                            if (tile.type & DIRECTION_UP) {
-                                r = 255;
-                            }
-                            if (tile.type & DIRECTION_RIGHT) {
-                                g = 255;
-                            }
-                            if (tile.type & DIRECTION_DOWN) {
-                                b = 255;
-                            }
-                            if (tile.type & DIRECTION_LEFT) {
-                                r -= 128;
-                                g -= 128;
-                                b -= 128;
-                            }
-
-                            ctx.strokeStyle = 'rgb(' + r + ',' + g + ',' + b + ')';
+                            ctx.lineWidth = 2;
+                            ctx.strokeStyle = 'rgb(255,255,255)';
                             ctx.strokeRect(i * TILE_W, j * TILE_H, TILE_W, TILE_H);
+
+                            ctx.fillStyle = 'rgb(255,255,255)';
+                            ctx.font = '14pt Calibri';
+                            ctx.textAlign = '';
+                            var m = ctx.measureText(tile.type);
+                            ctx.fillText(tile.type, i * TILE_W + ((TILE_W) - m.width) / 2, j * TILE_H + ((TILE_H) - 14 / 2) / 2);
+
                         }
 
                         //when we are finished drawing, update the frame index for that tile so the next time
