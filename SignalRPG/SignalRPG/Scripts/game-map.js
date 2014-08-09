@@ -49,87 +49,23 @@ function Map(name, loaded) {
             createLayers(data, _topLayers, PRIORITY_ABOVE);
 
             var layer = _bottomLayers[0];
-            //edge detection
-            for (var i = 0; i < _self.size.width; i++) {
-                for (var j = 0; j < _self.size.height; j++) {
-                    var tile = layer.tiles[i][j];
-                    var tiles = layer.tiles;
-
-                    if (tile != null && tile.set == 1) {
-                        //look around the tile
-                        var xb = i - 1;
-                        var xa = i + 1;
-                        var yb = j - 1;
-                        var ya = j + 1;
-
-                        if (xb < 0 || xa > _self.size.width - 1 || yb < 0 || ya > _self.size.height - 1) {
-                            continue;
-                        }
-
-
-                        //check to see if the tile has anything else around it
-                        if (tiles[i][yb] != null && tiles[i][yb].set == 0) {
-                            tile.type |= AUTOTILE_TOP;
-                        }
-                        if (tiles[xa][j] != null && tiles[xa][j].set == 0) {
-                            tile.type |= AUTOTILE_RIGHT;
-                        }
-                        if (tiles[i][ya] != null && tiles[i][ya].set == 0) {
-                            tile.type |= AUTOTILE_BOTTOM;
-                        }
-                        if (tiles[xb][j] != null && tiles[xb][j].set == 0) {
-                            tile.type |= AUTOTILE_LEFT;
-                        }
-
-                    }
-
-                }
-            }
-
-
 
             //edge detection
             for (var i = 0; i < _self.size.width; i++) {
                 for (var j = 0; j < _self.size.height; j++) {
                     var tile = layer.tiles[i][j];
-                    var tiles = layer.tiles;
-
-                    if (tile != null && tile.set == 1) {
-                        //look around the tile
-                        var xb = i - 1;
-                        var xa = i + 1;
-                        var yb = j - 1;
-                        var ya = j + 1;
-
-                        if (xb < 0 || xa > _self.size.width - 1 || yb < 0 || ya > _self.size.height - 1) {
-                            continue;
-                        }
 
 
-                        //check if inner corner
-                        if (tiles[i][yb] != null && tiles[i][yb].type & (AUTOTILE_TOP | AUTOTILE_RIGHT)
-                            && tiles[xa][j] != null && tiles[xa][j].type & (AUTOTILE_TOP)) {
+                    if (tile != null && tile.set == 1 && tile.type == undefined) {
 
-                            tile.type = AUTOTILE_INNER_TOP_RIGHT;
-                        }
+                        var tiles = layer.tiles;
 
-                        if (tiles[i][yb] != null && tiles[i][yb].type & (AUTOTILE_TOP | AUTOTILE_LEFT)
-                            && tiles[xb][j] != null && tiles[xb][j].type & (AUTOTILE_TOP)) {
-
-                            tile.type = AUTOTILE_INNER_TOP_LEFT;
-                        }
+                        //scan edges
+                        scanEdges(layer.tiles, i, j);
 
                     }
-
                 }
             }
-
-
-
-
-
-
-
 
 
 
@@ -143,6 +79,128 @@ function Map(name, loaded) {
         });
 
     }
+
+    function scanEdges(tiles, x, y) {
+        var tile = tiles[x][y];
+        var xb = x - 1;
+        var xa = x + 1;
+        var yb = y - 1;
+        var ya = y + 1;
+
+        //we found a tile, check for edges
+        //look up
+        if (yb > -1 && tiles[x][yb].set == 0) {
+            //this has a top edge
+            tile.type |= AUTOTILE_TOP;
+        } else if (yb > 0) {
+            //scan next tile
+            //scanEdges(tiles, x, yb);
+        }
+
+        //look right
+        if (xa < _self.size.width && tiles[xa][y].set == 0) {
+            //this has a top edge
+            tile.type |= AUTOTILE_RIGHT;
+        } else if (xa < _self.size.width) {
+            //scan next tile
+            //scanEdges(tiles, xa, y);
+        }
+
+        //look down
+        if (ya < _self.size.height && tiles[x][ya].set == 0) {
+            //this has a top edge
+            tile.type |= AUTOTILE_BOTTOM;
+        } else if (ya < _self.size.height) {
+            //scan next tile
+            //scanEdges(tiles, x, ya);
+        }
+
+        //look left
+        if (xb > -1 && tiles[xb][y].set == 0) {
+            //this has a top edge
+            tile.type |= AUTOTILE_LEFT;
+        } else if (xb > 0) {
+            //scan next tile
+            //scanEdges(tiles, xb, y);
+        }
+
+    }
+
+    function getTileDimensions(tile) {
+
+        //var dims = [];
+        if (tile.type == (AUTOTILE_TOP)) {
+            return [
+                { x: 1, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        } else if (tile.type == (AUTOTILE_RIGHT)) {
+            return [
+                { x: 2, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        } else if (tile.type == (AUTOTILE_BOTTOM)) {
+            return [
+                { x: 1, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        } else if (tile.type == (AUTOTILE_LEFT)) {
+            return [
+                { x: 0, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP)) {
+            return [
+                { x: 0, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 },
+                { x: 5, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 }
+            ];
+        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+            return [
+                { x: 0, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 },
+                { x: 0, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 }
+            ];
+        } else if (tile.type == (AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+            return [
+                { x: 2, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 },
+                { x: 2, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 }
+            ];
+        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
+            return [
+                { x: 0, y: 3, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 },
+                { x: 5, y: 3, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 }
+            ];
+        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT)) {
+            return [
+                { x: 0, y: 2, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 },
+                { x: 5, y: 2, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 }
+            ];
+        } else if (tile.type == (AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+            return [
+                { x: 1, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 },
+                { x: 1, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 }
+            ];
+        }
+        else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_TOP)) {
+            return [
+                { x: 0, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        }
+        else if (tile.type == (AUTOTILE_RIGHT | AUTOTILE_TOP)) {
+            return [
+                { x: 2, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        }
+        else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_BOTTOM)) {
+            return [
+                { x: 0, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        }
+        else if (tile.type == (AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
+            return [
+                { x: 2, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        }
+        else {
+            return [{ x: tile.srcX, y: tile.srcY, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }];
+        }
+    }
+
 
     //create layers from map data
     function createLayers(data, layers, priority) {
@@ -199,17 +257,24 @@ function Map(name, loaded) {
                         //get tileset to draw
                         var tileset = _tilesets[tile.set];
 
-                        //calculate the frame to draw. for animated tiles
-                        var srcX = tile.srcX + (tile.frameIndex * tileset.size.width);
+                        //get the tiles dimensions
+                        var dimensions = getTileDimensions(tile);
 
-                        //draw tile
-                        ctx.drawImage(tileset.image,
-                            srcX * TILE_W, tile.srcY * TILE_H, TILE_W, TILE_H,
-                            i * TILE_W, j * TILE_H, TILE_W, TILE_H);
+                        for (var l = 0; l < dimensions.length; l++) {
+                            var d = dimensions[l];
+
+                            //calculate the frame to draw. for animated tiles
+                            var srcX = d.x + (tile.frameIndex * (TILE_W / d.width) * tileset.size.width);
+
+                            //draw tile
+                            ctx.drawImage(tileset.image,
+                                srcX * d.width, d.y * d.height, d.width, d.height,  /*source*/
+                                i * TILE_W + d.offsetX, j * TILE_H + d.offsetY, d.width, d.height);      /*destination*/
+                        }
 
                         //TEST
                         if (tile.type > 0) {
-                            ctx.lineWidth = 2;
+
                             ctx.strokeStyle = 'rgb(255,255,255)';
                             ctx.strokeRect(i * TILE_W, j * TILE_H, TILE_W, TILE_H);
 
@@ -256,7 +321,7 @@ function Map(name, loaded) {
 
         //draw characters and such
         ctx.fillStyle = 'rgb(0,128,255)';
-        ctx.fillRect(7 * TILE_W, 7 * TILE_H, TILE_W, TILE_H);
+        ctx.fillRect(6 * TILE_W, 9 * TILE_H, TILE_W, TILE_H);
 
         //draw top layers
         drawLayers(ctx, gameTime, _topLayers);

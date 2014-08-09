@@ -37,7 +37,7 @@ function GameEngine(view) {
         //resize the back buffer
         resizeBuffer(_map.size.width, _map.size.height);
     });
-    
+
     //resize the view in pixels
     this.resizeView = function () {
         var viewCanvas = document.getElementById(view);
@@ -62,7 +62,7 @@ function GameEngine(view) {
         _buffer.width = x * TILE_W;
         _buffer.height = y * TILE_H;
     }
-    
+
     //update system
     function system() {
 
@@ -77,20 +77,21 @@ function GameEngine(view) {
 
         //draw
         draw(_bufferCtx, _gameTime);
-        
+
         //clear the view context
         _viewCtx.fillStyle = 'rgb(0,0,0)';
         _viewCtx.fillRect(0, 0, _viewPort.width, _viewPort.height);
 
-        _viewCtx.drawImage(_buffer,
-            _viewPort.x, _viewPort.y, _viewPort.width, _viewPort.height,
-            0, 0, _viewPort.width, _viewPort.height);
-
+        if (_map.mapLoaded) {
+            _viewCtx.drawImage(_buffer,
+                _viewPort.x, _viewPort.y, _viewPort.width, _viewPort.height,
+                0, 0, _viewPort.width, _viewPort.height);
+        }
 
         var thisFrameFPS = 1000 / _gameTime.frameTime;
         if (thisFrameFPS != Infinity) {
             _fps += (thisFrameFPS - _fps) / 50;
-            
+
         }
         _viewCtx.fillStyle = 'rgb(255,255,255)';
         _viewCtx.fillText('fps: ' + _fps, 10, 50);
