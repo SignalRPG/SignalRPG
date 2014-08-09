@@ -92,38 +92,22 @@ function Map(name, loaded) {
         if (yb > -1 && tiles[x][yb].set == 0) {
             //this has a top edge
             tile.type |= AUTOTILE_TOP;
-        } else if (yb > 0) {
-            //scan next tile
-            //scanEdges(tiles, x, yb);
         }
-
         //look right
         if (xa < _self.size.width && tiles[xa][y].set == 0) {
             //this has a top edge
             tile.type |= AUTOTILE_RIGHT;
-        } else if (xa < _self.size.width) {
-            //scan next tile
-            //scanEdges(tiles, xa, y);
         }
-
         //look down
         if (ya < _self.size.height && tiles[x][ya].set == 0) {
             //this has a top edge
             tile.type |= AUTOTILE_BOTTOM;
-        } else if (ya < _self.size.height) {
-            //scan next tile
-            //scanEdges(tiles, x, ya);
         }
-
         //look left
         if (xb > -1 && tiles[xb][y].set == 0) {
             //this has a top edge
             tile.type |= AUTOTILE_LEFT;
-        } else if (xb > 0) {
-            //scan next tile
-            //scanEdges(tiles, xb, y);
         }
-
     }
 
     function getTileDimensions(tile) {
@@ -194,6 +178,10 @@ function Map(name, loaded) {
         else if (tile.type == (AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
             return [
                 { x: 2, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
+            ];
+        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+            return [
+                { x: 0, y: 0, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
             ];
         }
         else {
