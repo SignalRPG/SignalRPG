@@ -95,7 +95,7 @@ function Map(name, loaded) {
 
     }
 
-
+    //scan the tiles to find the inner corners
     function scanInnerCorners(tiles, x, y) {
         var tile = tiles[x][y];
         var xb = x - 1;
@@ -104,15 +104,37 @@ function Map(name, loaded) {
         var ya = y + 1;
 
         //we found a tile, check for edges
-        //look up
-
-        if (yb > -1 && tiles[x][yb].type & AUTOTILE_LEFT
+        //look up and see if the tile is flagged with right
+        //look right and see if tile is flagged with down
+        if (yb > -1 && tiles[x][yb].type & AUTOTILE_RIGHT
             && xa < _self.size.width && tiles[xa][y].type & AUTOTILE_TOP) {
             //this has a top edge
             tile.type |= AUTOTILE_INNER_TOP_RIGHT;
         }
+
+        //look down and right
+        if (ya < _self.size.height && tiles[x][ya].type & AUTOTILE_RIGHT
+            && xa < _self.size.width && tiles[xa][y].type & AUTOTILE_BOTTOM) {
+            //this has a top edge
+            tile.type |= AUTOTILE_INNER_BOTTOM_RIGHT;
+        }
+
+        //look up and left
+        if (yb > -1 && tiles[x][yb].type & AUTOTILE_LEFT
+            && xb > -1 && tiles[xb][y].type & AUTOTILE_TOP) {
+            //this has a top edge
+            tile.type |= AUTOTILE_INNER_TOP_LEFT;
+        }
+
+        //look down and left
+        if (ya < _self.size.height && tiles[x][ya].type & AUTOTILE_LEFT
+            && xb > -1 && tiles[xb][y].type & AUTOTILE_BOTTOM) {
+            //this has a top edge
+            tile.type |= AUTOTILE_INNER_BOTTOM_LEFT;
+        }
     }
 
+    //scan the tiles to see where the edges are
     function scanEdges(tiles, x, y) {
         var tile = tiles[x][y];
         var xb = x - 1;
@@ -143,85 +165,99 @@ function Map(name, loaded) {
         }
     }
 
+    //gets the tile dimensions based on the type
     function getTileDimensions(tile) {
-
+        var flags = tile.type;
+        var extraFlags = 0;
         var dims = [];
-        if (tile.type == (AUTOTILE_TOP)) {
-            return [
-                { x: 1, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        } else if (tile.type == (AUTOTILE_RIGHT)) {
-            return [
-                { x: 2, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        } else if (tile.type == (AUTOTILE_BOTTOM)) {
-            return [
-                { x: 1, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        }else if (tile.type == (AUTOTILE_LEFT)) {
-            return[
-                { x: 0, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        }else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP)) {
-            return [
-                { x: 0, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 },
-                { x: 5, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 }
-            ];
-        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
-            return [
-                { x: 0, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 },
-                { x: 0, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 }
-            ];
-        } else if (tile.type == (AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
-            return [
-                { x: 2, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 },
-                { x: 2, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 }
-            ];
-        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
-            return [
-                { x: 0, y: 3, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 },
-                { x: 5, y: 3, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 }
-            ];
-        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT)) {
-            return [
-                { x: 0, y: 2, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 },
-                { x: 5, y: 2, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 }
-            ];
-        } else if (tile.type == (AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
-            return [
-                { x: 1, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 },
-                { x: 1, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 }
-            ];
-        }
-        else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_TOP)) {
-            return [
-                { x: 0, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        }
-        else if (tile.type == (AUTOTILE_RIGHT | AUTOTILE_TOP)) {
-            return [
-                { x: 2, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        }
-        else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_BOTTOM)) {
-            return [
-                { x: 0, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        }
-        else if (tile.type == (AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
-            return [
-                { x: 2, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
-            return [
-                { x: 0, y: 0, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
-            ];
-        }
-        else {
-            return [{ x: tile.srcX, y: tile.srcY, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }];
-        }
-    }
+        
+        //strip out the extra flags so we can render the tiles
+        if (flags & AUTOTILE_INNER_TOP_RIGHT) {
+            flags &= ~AUTOTILE_INNER_TOP_RIGHT;
 
+            extraFlags |= AUTOTILE_INNER_TOP_RIGHT;
+        }
+
+        if (flags & AUTOTILE_INNER_BOTTOM_RIGHT) {
+            flags &= ~AUTOTILE_INNER_BOTTOM_RIGHT;
+
+            extraFlags |= AUTOTILE_INNER_BOTTOM_RIGHT;
+        }
+
+        if (flags & AUTOTILE_INNER_TOP_LEFT) {
+            flags &= ~AUTOTILE_INNER_TOP_LEFT;
+
+            extraFlags |= AUTOTILE_INNER_TOP_LEFT;
+        }
+
+        if (flags & AUTOTILE_INNER_BOTTOM_LEFT) {
+            flags &= ~AUTOTILE_INNER_BOTTOM_LEFT;
+
+            extraFlags |= AUTOTILE_INNER_BOTTOM_LEFT;
+        }
+
+        //render edges
+        if (flags == (AUTOTILE_TOP)) {
+            dims.push({ x: 1, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == (AUTOTILE_RIGHT)) {
+            dims.push({ x: 2, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == (AUTOTILE_BOTTOM)) {
+            dims.push({ x: 1, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == (AUTOTILE_LEFT)) {
+            dims.push({ x: 0, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP)) {
+            dims.push({ x: 0, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 });
+            dims.push({ x: 5, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 });
+        } else if (flags == (AUTOTILE_LEFT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+            dims.push({ x: 0, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 });
+            dims.push({ x: 0, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 });
+        } else if (flags == (AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+            dims.push({ x: 2, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 });
+            dims.push({ x: 2, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 });
+        } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
+            dims.push({ x: 0, y: 3, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 });
+            dims.push({ x: 5, y: 3, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 });
+        } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT)) {
+            dims.push({ x: 0, y: 2, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 });
+            dims.push({ x: 5, y: 2, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 });
+        } else if (flags == (AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+            dims.push({ x: 1, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 });
+            dims.push({ x: 1, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 });
+        } else if (flags == (AUTOTILE_LEFT | AUTOTILE_TOP)) {
+            dims.push({ x: 0, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == (AUTOTILE_RIGHT | AUTOTILE_TOP)) {
+            dims.push({ x: 2, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == (AUTOTILE_LEFT | AUTOTILE_BOTTOM)) {
+            dims.push({ x: 0, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == (AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
+            dims.push({ x: 2, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+            dims.push({ x: 0, y: 0, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else {
+            dims.push({ x: tile.srcX, y: tile.srcY, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        }
+
+
+        //render inner corner tiles
+        if (extraFlags & AUTOTILE_INNER_TOP_RIGHT) {
+            dims.push({ x: 5, y: 0, width: TILE_W / 2, height: TILE_H / 2, offsetX: 16, offsetY: 0 });
+        }
+
+        if (extraFlags & AUTOTILE_INNER_BOTTOM_RIGHT) {
+            dims.push({ x: 5, y: 1, width: TILE_W / 2, height: TILE_H / 2, offsetX: 16, offsetY: 16 });
+        }
+
+        if (extraFlags & AUTOTILE_INNER_TOP_LEFT) {
+            dims.push({ x: 4, y: 0, width: TILE_W / 2, height: TILE_H / 2, offsetX: 0, offsetY: 0 });
+        }
+
+        if (extraFlags & AUTOTILE_INNER_BOTTOM_LEFT) {
+            dims.push({ x: 4, y: 1, width: TILE_W / 2, height: TILE_H / 2, offsetX: 0, offsetY: 16 });
+        }
+
+        //return the dimensions
+        return dims;
+    }
 
     //create layers from map data
     function createLayers(data, layers, priority) {
@@ -274,6 +310,7 @@ function Map(name, loaded) {
             for (var i = 0; i < layer.tiles.length; i++) {
                 for (var j = 0; j < layer.tiles[i].length; j++) {
                     var tile = layer.tiles[i][j];
+
                     if (tile != undefined && tile != null) {
                         //get tileset to draw
                         var tileset = _tilesets[tile.set];
@@ -294,18 +331,18 @@ function Map(name, loaded) {
                         }
 
                         //TEST
-                        if (tile.type > 0) {
+                        //if (tile.type > 0) {
 
-                            ctx.strokeStyle = 'rgb(255,255,255)';
-                            ctx.strokeRect(i * TILE_W, j * TILE_H, TILE_W, TILE_H);
+                        //    ctx.strokeStyle = 'rgb(255,255,255)';
+                        //    ctx.strokeRect(i * TILE_W, j * TILE_H, TILE_W, TILE_H);
 
-                            ctx.fillStyle = 'rgb(255,255,255)';
-                            ctx.font = '14pt Calibri';
-                            ctx.textAlign = '';
-                            var m = ctx.measureText(tile.type);
-                            ctx.fillText(tile.type, i * TILE_W + ((TILE_W) - m.width) / 2, j * TILE_H + ((TILE_H) - 14 / 2) / 2);
+                        //    ctx.fillStyle = 'rgb(255,255,255)';
+                        //    ctx.font = '14pt Calibri';
+                        //    ctx.textAlign = '';
+                        //    var m = ctx.measureText(tile.type);
+                        //    ctx.fillText(tile.type, i * TILE_W + ((TILE_W) - m.width) / 2, j * TILE_H + ((TILE_H) - 14 / 2) / 2);
 
-                        }
+                        //}
 
                         //when we are finished drawing, update the frame index for that tile so the next time
                         //we draw it, we draw from the next frame on the tileset.
