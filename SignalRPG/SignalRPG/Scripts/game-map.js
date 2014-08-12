@@ -58,10 +58,25 @@ function Map(name, loaded) {
 
                     if (tile != null && tile.set == 1 && tile.type == undefined) {
 
-                        var tiles = layer.tiles;
 
                         //scan edges
                         scanEdges(layer.tiles, i, j);
+
+                    }
+                }
+            }
+
+
+            //edge detection
+            for (var i = 0; i < _self.size.width; i++) {
+                for (var j = 0; j < _self.size.height; j++) {
+                    var tile = layer.tiles[i][j];
+
+
+                    if (tile != null && tile.set == 1) {
+
+                        //scan edges
+                        scanInnerCorners(layer.tiles, i, j);
 
                     }
                 }
@@ -78,6 +93,24 @@ function Map(name, loaded) {
             }
         });
 
+    }
+
+
+    function scanInnerCorners(tiles, x, y) {
+        var tile = tiles[x][y];
+        var xb = x - 1;
+        var xa = x + 1;
+        var yb = y - 1;
+        var ya = y + 1;
+
+        //we found a tile, check for edges
+        //look up
+
+        if (yb > -1 && tiles[x][yb].type & AUTOTILE_LEFT
+            && xa < _self.size.width && tiles[xa][y].type & AUTOTILE_TOP) {
+            //this has a top edge
+            tile.type |= AUTOTILE_INNER_TOP_RIGHT;
+        }
     }
 
     function scanEdges(tiles, x, y) {
@@ -112,7 +145,7 @@ function Map(name, loaded) {
 
     function getTileDimensions(tile) {
 
-        //var dims = [];
+        var dims = [];
         if (tile.type == (AUTOTILE_TOP)) {
             return [
                 { x: 1, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
@@ -125,11 +158,11 @@ function Map(name, loaded) {
             return [
                 { x: 1, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
             ];
-        } else if (tile.type == (AUTOTILE_LEFT)) {
-            return [
+        }else if (tile.type == (AUTOTILE_LEFT)) {
+            return[
                 { x: 0, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 }
             ];
-        } else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP)) {
+        }else if (tile.type == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP)) {
             return [
                 { x: 0, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 },
                 { x: 5, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 }
