@@ -34,6 +34,7 @@ function Map(name, loaded) {
                 img.src = tileset.src;
                 var set = {
                     image: img,
+                    autotile: tileset.autotile,
                     frames: tileset.frames,
                     size: tileset.size
                 };
@@ -144,22 +145,22 @@ function Map(name, loaded) {
 
         //we found a tile, check for edges
         //look up
-        if (yb > -1 && tiles[x][yb].set == 0) {
+        if (yb > -1 && tiles[x][yb].autotile == 0) {
             //this has a top edge
             tile.type |= AUTOTILE_TOP;
         }
         //look right
-        if (xa < _self.size.width && tiles[xa][y].set == 0) {
+        if (xa < _self.size.width && tiles[xa][y].autotile == 0) {
             //this has a top edge
             tile.type |= AUTOTILE_RIGHT;
         }
         //look down
-        if (ya < _self.size.height && tiles[x][ya].set == 0) {
+        if (ya < _self.size.height && tiles[x][ya].autotile == 0) {
             //this has a top edge
             tile.type |= AUTOTILE_BOTTOM;
         }
         //look left
-        if (xb > -1 && tiles[xb][y].set == 0) {
+        if (xb > -1 && tiles[xb][y].autotile == 0) {
             //this has a top edge
             tile.type |= AUTOTILE_LEFT;
         }

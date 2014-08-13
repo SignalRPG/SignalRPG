@@ -88,7 +88,7 @@
                 @Html.HiddenFor(x => x.MapJson)
 
                 <button id="save-map" type="button">Save</button>
-                
+
 
             }
 
@@ -186,6 +186,8 @@
             this.directions = 0;
             //higher priority gets drawn on top of all other tiles below it
             this.priority = 0;
+            //tile is an autotile
+            this.autotile = 0;
         }
 
         //map tile info. settings for the map rendering engine
@@ -197,6 +199,8 @@
             this.directions = 0;
             //higher priority gets drawn on top of all other tiles below it
             this.priority = 0;
+            //tile is an autotile
+            this.autotile = 0;
         }
 
         //tileset tile
@@ -204,6 +208,7 @@
             var _self = this;
             this.name = name;
             this.frames = 1;
+            this.autotile = 0;
             this.image = new Image();
             this.tiles = new Array2D(0, 0);
             this.size = new Size();
@@ -234,7 +239,7 @@
                                 //set the settings
                                 tileInfo.directions = tileData.directions;
                                 tileInfo.priority = tileData.priority;
-                                tileInfo.frames = tileData.frames;
+                                tileInfo.autotile = data.autotile;
                             }
                             //tileInfo.directions = DIRECTION_ALL;
                         }
@@ -252,8 +257,9 @@
 
                 //load image
                 _self.image.src = '/resources/tilesets/' + name + '.png';
-
-
+                //set frames
+                _self.frames = data.frames;
+                _self.autotile = data.autotile;
             });
 
         }
@@ -617,6 +623,7 @@
 
                     tilesets.push({
                         src: set.image.src,
+                        autotile: set.autotile,
                         frames: set.frames,
                         size: set.size
                     });
@@ -700,6 +707,7 @@
                             mapTile.set = _tileSetEngine.selectedSet;
                             mapTile.directions = tileInfo.directions;
                             mapTile.priority = tileInfo.priority;
+                            mapTile.autotile = tileInfo.autotile;
 
                             layer.tiles[x + i][y + j] = mapTile;
                         }
@@ -729,6 +737,7 @@
                         mapTile.set = _tileSetEngine.selectedSet;
                         mapTile.directions = tileInfo.directions;
                         mapTile.priority = tileInfo.priority;
+                        mapTile.autotile = tileInfo.autotile;
 
                         layer.tiles[i][j] = mapTile;
 
