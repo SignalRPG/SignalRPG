@@ -159,6 +159,100 @@
                 that.backbuffer.height = y * TILE_H;
             }
 
+            //gets the tile dimensions based on the type
+            function getTileDimensions(tile) {
+                var flags = tile.type;
+                var extraFlags = 0;
+                var dims = [];
+
+                //strip out the extra flags so we can render the tiles
+                if (flags & AUTOTILE_INNER_TOP_RIGHT) {
+                    flags &= ~AUTOTILE_INNER_TOP_RIGHT;
+
+                    extraFlags |= AUTOTILE_INNER_TOP_RIGHT;
+                }
+
+                if (flags & AUTOTILE_INNER_BOTTOM_RIGHT) {
+                    flags &= ~AUTOTILE_INNER_BOTTOM_RIGHT;
+
+                    extraFlags |= AUTOTILE_INNER_BOTTOM_RIGHT;
+                }
+
+                if (flags & AUTOTILE_INNER_TOP_LEFT) {
+                    flags &= ~AUTOTILE_INNER_TOP_LEFT;
+
+                    extraFlags |= AUTOTILE_INNER_TOP_LEFT;
+                }
+
+                if (flags & AUTOTILE_INNER_BOTTOM_LEFT) {
+                    flags &= ~AUTOTILE_INNER_BOTTOM_LEFT;
+
+                    extraFlags |= AUTOTILE_INNER_BOTTOM_LEFT;
+                }
+
+                //render edges
+                if (flags == (AUTOTILE_TOP)) {
+                    dims.push({ x: 1, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == (AUTOTILE_RIGHT)) {
+                    dims.push({ x: 2, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == (AUTOTILE_BOTTOM)) {
+                    dims.push({ x: 1, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == (AUTOTILE_LEFT)) {
+                    dims.push({ x: 0, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP)) {
+                    dims.push({ x: 0, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 });
+                    dims.push({ x: 5, y: 1, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 });
+                } else if (flags == (AUTOTILE_LEFT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+                    dims.push({ x: 0, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 });
+                    dims.push({ x: 0, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 });
+                } else if (flags == (AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+                    dims.push({ x: 2, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 });
+                    dims.push({ x: 2, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 });
+                } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
+                    dims.push({ x: 0, y: 3, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 });
+                    dims.push({ x: 5, y: 3, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 });
+                } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT)) {
+                    dims.push({ x: 0, y: 2, width: TILE_W / 2, height: TILE_H, offsetX: 0, offsetY: 0 });
+                    dims.push({ x: 5, y: 2, width: TILE_W / 2, height: TILE_H, offsetX: TILE_W / 2, offsetY: 0 });
+                } else if (flags == (AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+                    dims.push({ x: 1, y: 2, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: 0 });
+                    dims.push({ x: 1, y: 7, width: TILE_W, height: TILE_H / 2, offsetX: 0, offsetY: TILE_H / 2 });
+                } else if (flags == (AUTOTILE_LEFT | AUTOTILE_TOP)) {
+                    dims.push({ x: 0, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == (AUTOTILE_RIGHT | AUTOTILE_TOP)) {
+                    dims.push({ x: 2, y: 1, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == (AUTOTILE_LEFT | AUTOTILE_BOTTOM)) {
+                    dims.push({ x: 0, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == (AUTOTILE_RIGHT | AUTOTILE_BOTTOM)) {
+                    dims.push({ x: 2, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
+                    dims.push({ x: 0, y: 0, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else {
+                    dims.push({ x: tile.srcX, y: tile.srcY, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                }
+
+
+                //render inner corner tiles
+                if (extraFlags & AUTOTILE_INNER_TOP_RIGHT) {
+                    dims.push({ x: 5, y: 0, width: TILE_W / 2, height: TILE_H / 2, offsetX: 16, offsetY: 0 });
+                }
+
+                if (extraFlags & AUTOTILE_INNER_BOTTOM_RIGHT) {
+                    dims.push({ x: 5, y: 1, width: TILE_W / 2, height: TILE_H / 2, offsetX: 16, offsetY: 16 });
+                }
+
+                if (extraFlags & AUTOTILE_INNER_TOP_LEFT) {
+                    dims.push({ x: 4, y: 0, width: TILE_W / 2, height: TILE_H / 2, offsetX: 0, offsetY: 0 });
+                }
+
+                if (extraFlags & AUTOTILE_INNER_BOTTOM_LEFT) {
+                    dims.push({ x: 4, y: 1, width: TILE_W / 2, height: TILE_H / 2, offsetX: 0, offsetY: 16 });
+                }
+
+                //return the dimensions
+                return dims;
+            }
+
             //renders a particular tileset to the backbuffer
             this.draw = function (tileset) {
 
@@ -170,10 +264,34 @@
                     for (var j = 0; j < that.tiles[i].length; j++) {
                         var tile = that.tiles[i][j];
                         if (tile != undefined && tile != null) {
-                            //draw tile
-                            _ctx.drawImage(tileset.getImage(tile.set),
-                                tile.srcX * TILE_W, tile.srcY * TILE_H, TILE_W, TILE_H,
-                                i * TILE_W, j * TILE_H, TILE_W, TILE_H);
+
+                            //get the tiles dimensions
+                            var dimensions = getTileDimensions(tile);
+
+                            for (var l = 0; l < dimensions.length; l++) {
+                                var d = dimensions[l];
+
+                                //draw tile
+                                _ctx.drawImage(tileset.getImage(tile.set),
+                                    d.x * d.width, d.y * d.height, d.width, d.height,
+                                    i * TILE_W + d.offsetX, j * TILE_H + d.offsetY, d.width, d.height);
+
+                            }
+
+                            //TEST
+                            //if (tile.type > 0) {
+
+                            //    _ctx.strokeStyle = 'rgb(255,255,255)';
+                            //    _ctx.strokeRect(i * TILE_W, j * TILE_H, TILE_W, TILE_H);
+
+                            //    _ctx.fillStyle = 'rgb(255,255,255)';
+                            //    _ctx.font = '14pt Calibri';
+                            //    _ctx.textAlign = '';
+                            //    var m = _ctx.measureText(tile.type);
+                            //    _ctx.fillText(tile.type, i * TILE_W + ((TILE_W) - m.width) / 2, j * TILE_H + ((TILE_H) - 14 / 2) / 2);
+
+                            //}
+                            
                         }
                     }
                 }
@@ -713,8 +831,8 @@
                         }
                     }
 
-
-
+                    //run auto tile algorythm
+                    applyAutotiles(layer);
 
                 }
             }
@@ -755,6 +873,108 @@
                     //remove coords
                     delete layer.tiles[x][y];
 
+                }
+            }
+
+            //apply autotiles
+            function applyAutotiles(layer) {
+                
+                //edge detection
+                for (var i = 0; i < _mapSize.width; i++) {
+                    for (var j = 0; j < _mapSize.height; j++) {
+                        var tile = layer.tiles[i][j];
+                        if (tile != null && tile.autotile == 1 ) {
+                            
+                            //scan edges
+                            scanEdges(layer.tiles, i, j);
+
+                        }
+                    }
+                }
+
+                for (var i = 0; i < _mapSize.width; i++) {
+                    for (var j = 0; j < _mapSize.height; j++) {
+                        var tile = layer.tiles[i][j];
+                        if (tile != null && tile.autotile == 1) {
+
+                            //scan edges
+                            scanInnerCorners(layer.tiles, i, j);
+
+                        }
+                    }
+                }
+            }
+
+            //scan the tiles to find the inner corners
+            function scanInnerCorners(tiles, x, y) {
+                var tile = tiles[x][y];
+                var xb = x - 1;
+                var xa = x + 1;
+                var yb = y - 1;
+                var ya = y + 1;
+
+                //we found a tile, check for edges
+                //look up and see if the tile is flagged with right
+                //look right and see if tile is flagged with down
+                if (yb > -1 && tiles[x][yb].type & AUTOTILE_RIGHT
+                    && xa < _mapSize.width && tiles[xa][y].type & AUTOTILE_TOP) {
+                    //this has a top edge
+                    tile.type |= AUTOTILE_INNER_TOP_RIGHT;
+                }
+
+                //look down and right
+                if (ya < _mapSize.height && tiles[x][ya].type & AUTOTILE_RIGHT
+                    && xa < _mapSize.width && tiles[xa][y].type & AUTOTILE_BOTTOM) {
+                    //this has a top edge
+                    tile.type |= AUTOTILE_INNER_BOTTOM_RIGHT;
+                }
+
+                //look up and left
+                if (yb > -1 && tiles[x][yb].type & AUTOTILE_LEFT
+                    && xb > -1 && tiles[xb][y].type & AUTOTILE_TOP) {
+                    //this has a top edge
+                    tile.type |= AUTOTILE_INNER_TOP_LEFT;
+                }
+
+                //look down and left
+                if (ya < _mapSize.height && tiles[x][ya].type & AUTOTILE_LEFT
+                    && xb > -1 && tiles[xb][y].type & AUTOTILE_BOTTOM) {
+                    //this has a top edge
+                    tile.type |= AUTOTILE_INNER_BOTTOM_LEFT;
+                }
+            }
+
+
+            //scan the tiles to see where the edges are
+            function scanEdges(tiles, x, y) {
+                var tile = tiles[x][y];
+                var xb = x - 1;
+                var xa = x + 1;
+                var yb = y - 1;
+                var ya = y + 1;
+
+                //reset tile
+                tile.type = 0;
+                //we found a tile, check for edges
+                //look up
+                if (yb > -1 && tiles[x][yb].autotile == 0) {
+                    //this has a top edge
+                    tile.type |= AUTOTILE_TOP;
+                }
+                //look right
+                if (xa < _mapSize.width && tiles[xa][y].autotile == 0) {
+                    //this has a top edge
+                    tile.type |= AUTOTILE_RIGHT;
+                }
+                //look down
+                if (ya < _mapSize.height && tiles[x][ya].autotile == 0) {
+                    //this has a top edge
+                    tile.type |= AUTOTILE_BOTTOM;
+                }
+                //look left
+                if (xb > -1 && tiles[xb][y].autotile == 0) {
+                    //this has a top edge
+                    tile.type |= AUTOTILE_LEFT;
                 }
             }
 
