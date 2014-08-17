@@ -227,6 +227,8 @@
                     dims.push({ x: 2, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
                 } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
                     dims.push({ x: 0, y: 0, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+                } else if (flags == AUTOTILE_NONE) {
+                    dims.push({ x: 1, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
                 } else {
                     dims.push({ x: tile.srcX, y: tile.srcY, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
                 }
@@ -291,7 +293,7 @@
                             //    _ctx.fillText(tile.type, i * TILE_W + ((TILE_W) - m.width) / 2, j * TILE_H + ((TILE_H) - 14 / 2) / 2);
 
                             //}
-                            
+
                         }
                     }
                 }
@@ -319,6 +321,8 @@
             this.priority = 0;
             //tile is an autotile
             this.autotile = 0;
+            //tile type
+            this.type = 0;
         }
 
         //tileset tile
@@ -878,13 +882,13 @@
 
             //apply autotiles
             function applyAutotiles(layer) {
-                
+
                 //edge detection
                 for (var i = 0; i < _mapSize.width; i++) {
                     for (var j = 0; j < _mapSize.height; j++) {
                         var tile = layer.tiles[i][j];
-                        if (tile != null && tile.autotile == 1 ) {
-                            
+                        if (tile != null && tile.autotile == 1) {
+
                             //scan edges
                             scanEdges(layer.tiles, i, j);
 
@@ -975,6 +979,12 @@
                 if (xb > -1 && tiles[xb][y].autotile == 0) {
                     //this has a top edge
                     tile.type |= AUTOTILE_LEFT;
+                }
+
+
+                //if no type specified, then its completely surrounded.
+                if (tile.type == 0) {
+                    tile.type = AUTOTILE_NONE;
                 }
             }
 

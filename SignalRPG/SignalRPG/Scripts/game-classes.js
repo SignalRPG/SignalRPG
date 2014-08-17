@@ -12,7 +12,6 @@ var DIRECTION_LEFT = 8;
 var DIRECTION_ALL = 15;
 
 //autotile type
-var AUTOTILE_NONE = 0;
 var AUTOTILE_TOP = 1;
 var AUTOTILE_RIGHT = 2;
 var AUTOTILE_BOTTOM = 4;
@@ -21,6 +20,7 @@ var AUTOTILE_INNER_TOP_RIGHT = 16;
 var AUTOTILE_INNER_TOP_LEFT = 32;
 var AUTOTILE_INNER_BOTTOM_RIGHT = 64;
 var AUTOTILE_INNER_BOTTOM_LEFT = 128;
+var AUTOTILE_NONE = 256;
 
 //tileset tile rendering priority. tiles with lower priority are drawn first, character is drawn after
 //all priority 0 tiles so that he is above them. tiles with higher priority are drawn last so that they

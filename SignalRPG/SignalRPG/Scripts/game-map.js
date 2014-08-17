@@ -49,42 +49,6 @@ function Map(name, loaded) {
             //then, get all tiles with priority 1, and layer them last
             createLayers(data, _topLayers, PRIORITY_ABOVE);
 
-            var layer = _bottomLayers[0];
-
-            //edge detection
-            for (var i = 0; i < _self.size.width; i++) {
-                for (var j = 0; j < _self.size.height; j++) {
-                    var tile = layer.tiles[i][j];
-
-
-                    if (tile != null && tile.set == 1 && tile.type == undefined) {
-
-
-                        //scan edges
-                        scanEdges(layer.tiles, i, j);
-
-                    }
-                }
-            }
-
-
-            //edge detection
-            for (var i = 0; i < _self.size.width; i++) {
-                for (var j = 0; j < _self.size.height; j++) {
-                    var tile = layer.tiles[i][j];
-
-
-                    if (tile != null && tile.set == 1) {
-
-                        //scan edges
-                        scanInnerCorners(layer.tiles, i, j);
-
-                    }
-                }
-            }
-
-
-
             //map is loaded
             _self.mapLoaded = true;
 
@@ -94,76 +58,6 @@ function Map(name, loaded) {
             }
         });
 
-    }
-
-    //scan the tiles to find the inner corners
-    function scanInnerCorners(tiles, x, y) {
-        var tile = tiles[x][y];
-        var xb = x - 1;
-        var xa = x + 1;
-        var yb = y - 1;
-        var ya = y + 1;
-
-        //we found a tile, check for edges
-        //look up and see if the tile is flagged with right
-        //look right and see if tile is flagged with down
-        if (yb > -1 && tiles[x][yb].type & AUTOTILE_RIGHT
-            && xa < _self.size.width && tiles[xa][y].type & AUTOTILE_TOP) {
-            //this has a top edge
-            tile.type |= AUTOTILE_INNER_TOP_RIGHT;
-        }
-
-        //look down and right
-        if (ya < _self.size.height && tiles[x][ya].type & AUTOTILE_RIGHT
-            && xa < _self.size.width && tiles[xa][y].type & AUTOTILE_BOTTOM) {
-            //this has a top edge
-            tile.type |= AUTOTILE_INNER_BOTTOM_RIGHT;
-        }
-
-        //look up and left
-        if (yb > -1 && tiles[x][yb].type & AUTOTILE_LEFT
-            && xb > -1 && tiles[xb][y].type & AUTOTILE_TOP) {
-            //this has a top edge
-            tile.type |= AUTOTILE_INNER_TOP_LEFT;
-        }
-
-        //look down and left
-        if (ya < _self.size.height && tiles[x][ya].type & AUTOTILE_LEFT
-            && xb > -1 && tiles[xb][y].type & AUTOTILE_BOTTOM) {
-            //this has a top edge
-            tile.type |= AUTOTILE_INNER_BOTTOM_LEFT;
-        }
-    }
-
-    //scan the tiles to see where the edges are
-    function scanEdges(tiles, x, y) {
-        var tile = tiles[x][y];
-        var xb = x - 1;
-        var xa = x + 1;
-        var yb = y - 1;
-        var ya = y + 1;
-
-        //we found a tile, check for edges
-        //look up
-        if (yb > -1 && tiles[x][yb].autotile == 0) {
-            //this has a top edge
-            tile.type |= AUTOTILE_TOP;
-        }
-        //look right
-        if (xa < _self.size.width && tiles[xa][y].autotile == 0) {
-            //this has a top edge
-            tile.type |= AUTOTILE_RIGHT;
-        }
-        //look down
-        if (ya < _self.size.height && tiles[x][ya].autotile == 0) {
-            //this has a top edge
-            tile.type |= AUTOTILE_BOTTOM;
-        }
-        //look left
-        if (xb > -1 && tiles[xb][y].autotile == 0) {
-            //this has a top edge
-            tile.type |= AUTOTILE_LEFT;
-        }
     }
 
     //gets the tile dimensions based on the type
@@ -234,6 +128,8 @@ function Map(name, loaded) {
             dims.push({ x: 2, y: 3, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
         } else if (flags == (AUTOTILE_LEFT | AUTOTILE_RIGHT | AUTOTILE_TOP | AUTOTILE_BOTTOM)) {
             dims.push({ x: 0, y: 0, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
+        } else if (flags == AUTOTILE_NONE) {
+            dims.push({ x: 1, y: 2, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
         } else {
             dims.push({ x: tile.srcX, y: tile.srcY, width: TILE_W, height: TILE_H, offsetX: 0, offsetY: 0 });
         }
