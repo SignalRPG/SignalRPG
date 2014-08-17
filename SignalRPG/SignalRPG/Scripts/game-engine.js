@@ -114,9 +114,22 @@ function GameEngine(view) {
         _map.draw(ctx, gameTime);
     }
 
-    //initialize before requesting any frames
-    initialize();
+    //start the game hub
+    var gameHub = $.connection.gameHub;
 
-    //request a frame
-    window.requestAnimationFrame(system);
+    //create hub methods
+    gameHub.client.moveCharacter = function (x, y) {
+
+    }
+
+    //start connection to hub
+    $.connection.hub.start().done(function () {
+        //initialize before requesting any frames
+        initialize();
+
+        //request a frame
+        window.requestAnimationFrame(system);
+    });
+
+    
 }
