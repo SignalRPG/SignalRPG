@@ -17,6 +17,10 @@ function Map(name, loaded) {
     var _bottomLayers = [];
     var _topLayers = [];
 
+    //contains all of the objects on the map, including characters, monsters, NPCs and other
+    //interactable things controlled by the server.
+    var _mapObjects = [];
+
     //get the map json file and build the map
     function initialize() {
         //get the json
@@ -223,8 +227,8 @@ function Map(name, loaded) {
 
                             //draw tile
                             ctx.drawImage(tileset.image,
-                                srcX * d.width, d.y * d.height, d.width, d.height,  /*source*/
-                                i * TILE_W + d.offsetX, j * TILE_H + d.offsetY, d.width, d.height);      /*destination*/
+                                srcX * d.width, d.y * d.height, d.width, d.height,                      /*source*/
+                                i * TILE_W + d.offsetX, j * TILE_H + d.offsetY, d.width, d.height);     /*destination*/
                         }
 
                         //TEST
@@ -259,6 +263,7 @@ function Map(name, loaded) {
                                 tile.frameCounter = 0;
                             }
                         }
+
                     }
                 }
             }
@@ -274,15 +279,24 @@ function Map(name, loaded) {
         //draw bottom layers
         drawLayers(ctx, gameTime, _bottomLayers);
 
-        //draw characters and such
-        ctx.fillStyle = 'rgb(0,128,255)';
-        ctx.fillRect(6 * TILE_W, 9 * TILE_H, TILE_W, TILE_H);
+        for (var k = 0; k < _mapObjects.length; k++) {
+            var obj = _mapObjects[k];
+            //draw characters and such
+            ctx.fillStyle = 'rgb(0,128,255)';
+            ctx.fillRect(obj.x * TILE_W, obj.y * TILE_H, TILE_W, TILE_H);
+        }
 
         //draw top layers
         drawLayers(ctx, gameTime, _topLayers);
 
-        //draw always on top characters (like birds and things)
-    }
+        //draw always-on-top characters (like birds and butterflies)
+    };
+
+    //pushes an object onto the map object stack
+    this.pushMapObject = function (obj) {
+        //add object to map
+        _mapObjects.push(obj);
+    };
 
     //initialize the map
     initialize();
