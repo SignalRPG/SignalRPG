@@ -142,15 +142,11 @@
     <Content Include="Scripts\bootstrap.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\game.js" />
-    <Content Include="resources\maps\map1.json" />
-    <Content Include="resources\maps\map2.json" />
-    <Content Include="resources\maps\map3.json" />
-    <Content Include="resources\maps\map4.json" />
     <Content Include="resources\tilesets\001-Grassland01.json" />
     <Content Include="Scripts\game-classes.js" />
     <Content Include="resources\tilesets\001-G_Water01.json" />
-    <Content Include="resources\maps\map-test.json" />
     <Content Include="resources\maps\map-boundry-test.json" />
+    <None Include="Properties\PublishProfiles\Test.pubxml" />
     <None Include="Scripts\jquery-2.1.1.intellisense.js" />
     <Content Include="Scripts\jquery-2.1.1.js" />
     <Content Include="Scripts\jquery-2.1.1.min.js" />
