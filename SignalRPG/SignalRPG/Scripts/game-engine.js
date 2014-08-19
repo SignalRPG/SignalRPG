@@ -6,11 +6,14 @@
 function GameEngine(view) {
     var _self = this;
 
+    //start the game hub
+    var gameHub = $.connection.gameHub;
+
     //game time object
     var _gameTime = new GameTime();
-    //frame counter
-    var _fpsLast = 0;
-    var _fps = 0;
+
+    //keyboard events
+    var _keyboardEvent = null;
 
     //backbuffer. all drawing is rendered here first. only a portion of the backbuffer is drawn
     //and copied to the view context
@@ -31,6 +34,9 @@ function GameEngine(view) {
 
     //some counters
     var _fps = 0;
+
+    //other - may be removed
+    var _char = null;
 
     //map instance
     var _map = new Map('map-boundry-test', function () {
@@ -63,6 +69,11 @@ function GameEngine(view) {
         _buffer.height = y * TILE_H;
     }
 
+    //keyboard events
+    function onKeyDown(e) {
+        _keyboardEvent = e;
+    }
+
     //update system
     function system() {
 
@@ -73,7 +84,10 @@ function GameEngine(view) {
         _gameTime.update();
 
         //update
-        update(_gameTime);
+        update(_keyboardEvent, _gameTime);
+
+        //reset the keycode
+        _keyboardEvent = null;
 
         //draw
         draw(_bufferCtx, _gameTime);
@@ -96,15 +110,58 @@ function GameEngine(view) {
         _viewCtx.fillStyle = 'rgb(255,255,255)';
         _viewCtx.fillText('fps: ' + _fps, 10, 50);
 
+        //listen to keyboard events
+        window.addEventListener('keydown', onKeyDown, true);
+
         //request a frame
         window.requestAnimationFrame(system);
     }
 
     //handle keyboard/mouse events
-    function update(gameTime) {
+    function update(ke, gameTime) {
 
-        //add update code here
+        if (ke != null) {
 
+            var x = _char.x;
+            var y = _char.y;
+
+            switch (ke.keyCode) {
+                case 38:
+
+                    if (y - 1 > -1)
+                        y--;
+
+                    break;
+
+                case 39:
+
+                    if (x + 1 < _maxSize.width)
+                        x++;
+
+                    break;
+
+                case 40:
+
+                    if (y + 1 < _maxSize.height)
+                        y++;
+
+                    break;
+
+                case 37:
+
+                    if (x - 1 > -1)
+                        x--;
+
+                    break;
+
+            }
+
+            _char.x = x;
+            _char.y = y;
+
+            //add update code here
+            gameHub.server.moveCharacter(_char);
+        }
     }
 
     //all drawing code
@@ -114,16 +171,32 @@ function GameEngine(view) {
         _map.draw(ctx, gameTime);
     }
 
-    //start the game hub
-    var gameHub = $.connection.gameHub;
+
 
     //create hub methods
     gameHub.client.characterEnter = function (obj) {
+        console.log('pushing object ' + obj.x + "," + obj.y);
+        //add the item
         _map.pushMapObject(obj);
     };
 
-    gameHub.client.moveCharacter = function (x, y) {
+    gameHub.client.characterLeave = function (id) {
+        console.log('removing object ' + id);
+        //remove the object
+        _map.deleteMapObjectById(id);
+    };
 
+    gameHub.client.registerCharacter = function (id) {
+        //this is your character's id
+        
+        _char = _map.findMapObjectById(id);
+    };
+
+    gameHub.client.moveCharacter = function (obj) {
+        var character = _map.findMapObjectById(obj.id);
+
+        character.x = obj.x;
+        character.y = obj.y;
     };
 
     //start connection to hub
@@ -135,5 +208,5 @@ function GameEngine(view) {
         window.requestAnimationFrame(system);
     });
 
-    
+
 }

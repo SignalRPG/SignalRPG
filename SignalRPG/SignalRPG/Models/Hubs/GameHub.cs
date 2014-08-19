@@ -8,8 +8,17 @@ namespace SignalRPG.Models.Hubs
 {
     public class GameHub : BaseHub
     {
+        /// <summary>
+        /// Random object
+        /// </summary>
+        private static Random _random = new Random();
 
-        public static Dictionary<string, object> ObjectList { get; private set; }
+        private static long _globalId = 0;
+
+        /// <summary>
+        /// Collection of objects
+        /// </summary>
+        public static Dictionary<string, dynamic> ObjectList { get; private set; }
 
         static GameHub()
         {
@@ -24,24 +33,37 @@ namespace SignalRPG.Models.Hubs
                 //add connection to this group
                 Groups.Add(Context.ConnectionId, "map-test");
 
-                var rnd = new  Random();
 
-                var charx = rnd.Next(0, 21);
-                var chary = rnd.Next(0, 13);
 
-                var obj = new { x = charx, y = chary, name = Context.User.Identity.Name };
+                var charx = _random.Next(0, 21);
+                var chary = _random.Next(0, 12);
+
+                //increment id
+                _globalId++;
+
+                //create object
+                var obj = new { id = _globalId, x = charx, y = chary,
+                    color = string.Format("rgb({0},{1},{2})",
+                        _random.Next(0, 256),
+                        _random.Next(0, 256),
+                        _random.Next(0, 256))
+                };
+
                 //when the player connects, add them to the object list
-                ObjectList.Add(Context.ConnectionId, obj );
+                ObjectList.Add(Context.ConnectionId, obj);
 
                 //push the object to the game map for all other clients in the map
                 Clients.OthersInGroup("map-test").characterEnter(obj);
-                
+
 
                 //for the connecting client only, get all objects currently in the list for the map
                 foreach (var pair in ObjectList)
                 {
                     Clients.Client(Context.ConnectionId).characterEnter(pair.Value);
                 }
+
+                //register your character
+                Clients.Client(Context.ConnectionId).registerCharacter(_globalId);
             }
 
             return base.OnConnected();
@@ -52,8 +74,14 @@ namespace SignalRPG.Models.Hubs
 
             if (ObjectList.ContainsKey(Context.ConnectionId))
             {
+                //get the object
+                var obj = ObjectList[Context.ConnectionId];
+
                 //when the player connects, add them to the object list
                 ObjectList.Remove(Context.ConnectionId);
+
+                //character left, update all other clients
+                Clients.OthersInGroup("map-test").characterLeave(obj.id);
             }
 
             return base.OnDisconnected();
@@ -64,9 +92,9 @@ namespace SignalRPG.Models.Hubs
             return base.OnReconnected();
         }
 
-        public void MoveCharacter(int x, int y)
+        public void MoveCharacter(dynamic character)
         {
-            Clients.All.moveCharacter(x, y);
+            Clients.All.moveCharacter(character);
         }
     }
 }
