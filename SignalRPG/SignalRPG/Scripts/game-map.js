@@ -1,4 +1,5 @@
 ﻿/// <reference path="game-classes.js" />
+/// <reference path="game-sprite.js" />
 
 //map engine. loads a map json file and renders it
 function Map(name, loaded) {

@@ -160,7 +160,7 @@ function GameEngine(view) {
             _char.y = y;
 
             //add update code here
-            gameHub.server.moveCharacter(_char);
+            //gameHub.server.moveCharacter(_char);
         }
     }
 
