@@ -122,8 +122,8 @@ function GameEngine(view) {
 
         if (ke != null) {
 
-            var x = _char.x;
-            var y = _char.y;
+            var x = _char.X;
+            var y = _char.Y;
 
             switch (ke.keyCode) {
                 case 38:
@@ -156,11 +156,11 @@ function GameEngine(view) {
 
             }
 
-            _char.x = x;
-            _char.y = y;
+            _char.X = x;
+            _char.Y = y;
 
             //add update code here
-            //gameHub.server.moveCharacter(_char);
+            gameHub.server.moveCharacter(_char.ID, x, y);
         }
     }
 
@@ -174,29 +174,36 @@ function GameEngine(view) {
 
 
     //create hub methods
+
+    //this method is called when a player joins the map
+    //the player is pushed onto the array
     gameHub.client.characterEnter = function (obj) {
-        console.log('pushing object ' + obj.x + "," + obj.y);
+        console.log('pushing object ' + obj.ID);
         //add the item
         _map.pushMapObject(obj);
     };
 
+    //when your character joins the map, your ID is returned
+    //so the game engine knows which player in the stack is yours
+    gameHub.client.registerCharacter = function (id) {
+        //this is your character's id
+        _char = _map.findMapObjectById(id);
+    };
+
+    //this method is called when a player leaves the map
+    //the player object is removed from the array
     gameHub.client.characterLeave = function (id) {
         console.log('removing object ' + id);
         //remove the object
         _map.deleteMapObjectById(id);
     };
 
-    gameHub.client.registerCharacter = function (id) {
-        //this is your character's id
-        
-        _char = _map.findMapObjectById(id);
-    };
+    //when a character moves, the server calls this event to update the x,y coords
+    gameHub.client.moveCharacter = function (id, x, y) {
+        var character = _map.findMapObjectById(id);
 
-    gameHub.client.moveCharacter = function (obj) {
-        var character = _map.findMapObjectById(obj.id);
-
-        character.x = obj.x;
-        character.y = obj.y;
+        character.X = x;
+        character.Y = y;
     };
 
     //start connection to hub

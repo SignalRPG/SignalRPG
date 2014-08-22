@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using Microsoft.AspNet.SignalR;
+using SignalRPG.Models.GameClasses;
 
 namespace SignalRPG.Models.Hubs
 {
@@ -18,11 +19,11 @@ namespace SignalRPG.Models.Hubs
         /// <summary>
         /// Collection of objects
         /// </summary>
-        public static Dictionary<string, dynamic> ObjectList { get; private set; }
+        public static Dictionary<string, Sprite> ObjectList { get; private set; }
 
         static GameHub()
         {
-            ObjectList = new Dictionary<string, object>();
+            ObjectList = new Dictionary<string, Sprite>();
         }
 
 
@@ -42,8 +43,8 @@ namespace SignalRPG.Models.Hubs
                 _globalId++;
 
                 //create object
-                var obj = new { id = _globalId, x = charx, y = chary,
-                    color = string.Format("rgb({0},{1},{2})",
+                var obj = new Character() { ID = _globalId, X = charx, Y = chary,
+                    Color = string.Format("rgb({0},{1},{2})",
                         _random.Next(0, 256),
                         _random.Next(0, 256),
                         _random.Next(0, 256))
@@ -81,7 +82,7 @@ namespace SignalRPG.Models.Hubs
                 ObjectList.Remove(Context.ConnectionId);
 
                 //character left, update all other clients
-                Clients.OthersInGroup("map-test").characterLeave(obj.id);
+                Clients.OthersInGroup("map-test").characterLeave(obj.ID);
             }
 
             return base.OnDisconnected();
@@ -92,9 +93,9 @@ namespace SignalRPG.Models.Hubs
             return base.OnReconnected();
         }
 
-        public void MoveCharacter(dynamic character)
+        public void MoveCharacter(long id, int x, int y)
         {
-            Clients.All.moveCharacter(character);
+            Clients.All.moveCharacter(id, x, y);
         }
     }
 }

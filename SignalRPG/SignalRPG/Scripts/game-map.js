@@ -283,8 +283,8 @@ function Map(name, loaded) {
         for (var k = 0; k < _mapObjects.length; k++) {
             var obj = _mapObjects[k];
             //draw characters and such
-            ctx.fillStyle = obj.color;
-            ctx.fillRect(obj.x * TILE_W, obj.y * TILE_H, TILE_W, TILE_H);
+            ctx.fillStyle = obj.Color;
+            ctx.fillRect(obj.X * TILE_W, obj.Y * TILE_H, TILE_W, TILE_H);
         }
 
         //draw top layers
@@ -303,7 +303,7 @@ function Map(name, loaded) {
     this.findMapObjectById = function (id) {
         //find the object based on its id
         for (var k = 0; k < _mapObjects.length; k++) {
-            if (_mapObjects[k].id === id) {
+            if (_mapObjects[k].ID === id) {
                 return _mapObjects[k];
             }
         }
@@ -315,7 +315,7 @@ function Map(name, loaded) {
     this.deleteMapObjectById = function (id) {
         //find the object based on its id
         for (var k = 0; k < _mapObjects.length; k++) {
-            if (_mapObjects[k].id === id) {
+            if (_mapObjects[k].ID === id) {
                 //remove the item at the element's id
                 _mapObjects.splice(k, 1);
                 break;

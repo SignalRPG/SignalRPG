@@ -173,6 +173,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Models\Class1.cs" />
+    <Compile Include="Models\GameClasses\Character.cs" />
     <Compile Include="Models\GameClasses\Sprite.cs" />
     <Compile Include="Models\Hubs\BaseHub.cs" />
     <Compile Include="Models\Hubs\GameHub.cs" />
