@@ -9,62 +9,82 @@ namespace SignalRPG.Models.Hubs
 {
     public class GameHub : BaseHub
     {
-        /// <summary>
-        /// Random object
-        /// </summary>
-        private static Random _random = new Random();
-
-        private static long _globalId = 0;
 
         /// <summary>
         /// Collection of objects
         /// </summary>
-        public static Dictionary<string, Sprite> ObjectList { get; private set; }
+        public static Dictionary<string, Sprite> Players { get; private set; }
+
+
+        /// <summary>
+        /// Collection of objects
+        /// </summary>
+        public static Dictionary<string, Map> Maps { get; private set; }
 
         static GameHub()
         {
-            ObjectList = new Dictionary<string, Sprite>();
+            Maps = new Dictionary<string, Map>();
+            Players = new Dictionary<string, Sprite>();
         }
 
 
         public override System.Threading.Tasks.Task OnConnected()
         {
-            if (!ObjectList.ContainsKey(Context.ConnectionId))
+
+            //player has connected. We need to retrieve some information about the player
+
+            //we will identify the player by the Identity.
+            //Context.User.Identity.Name
+
+            //we'll get the user ID and assign it
+            //for now though we just increment id
+
+            
+
+            //create the player object to be placed on the map
+            var obj = new Character();
+
+
+            //we need to figure out what map the player is on. Get it from DB.
+            var mapName = "map-test";
+
+            //create the map instance if it does not exist. This will also create
+            //a signalR group of the same name
+            CreateMapInstance(mapName);
+
+            //now that we have the map instance (or ensured it was created) we look up the map
+            //and get the map object to push our object on
+            if (Maps.ContainsKey(mapName))
             {
-                //add connection to this group
-                Groups.Add(Context.ConnectionId, "map-test");
+                //get the map
+                var map = Maps[mapName];
 
-
-
-                var charx = _random.Next(0, 21);
-                var chary = _random.Next(0, 12);
-
-                //increment id
-                _globalId++;
-
-                //create object
-                var obj = new Character() { ID = _globalId, X = charx, Y = chary,
-                    Color = string.Format("rgb({0},{1},{2})",
-                        _random.Next(0, 256),
-                        _random.Next(0, 256),
-                        _random.Next(0, 256))
-                };
-
-                //when the player connects, add them to the object list
-                ObjectList.Add(Context.ConnectionId, obj);
-
-                //push the object to the game map for all other clients in the map
-                Clients.OthersInGroup("map-test").characterEnter(obj);
-
-
-                //for the connecting client only, get all objects currently in the list for the map
-                foreach (var pair in ObjectList)
+                //add our connection id to the map if it doesn't exist yet. this id will be tied to our object
+                if (!Players.ContainsKey(Context.ConnectionId))
                 {
-                    Clients.Client(Context.ConnectionId).characterEnter(pair.Value);
+
+                    //add the player object to the list of all players
+                    Players.Add(Context.ConnectionId, obj);
+
+                    //add layer to map object list
+                    map.Objects.Add(obj.ID, obj);
+
+                    obj.Map = map;
+
+                    //now we have to notify all other clients on the map that a new player joined
+                    Clients.OthersInGroup(mapName).characterEnter(obj);
+
+                    //for the connecting client only, get all objects currently in the list for the map
+                    foreach (var mapObj in map.Objects)
+                    {
+                        Clients.Client(Context.ConnectionId).characterEnter(mapObj.Value);
+                    }
+
+                    //register your character's ID so the client knows which object is the
+                    //player
+                    Clients.Client(Context.ConnectionId).registerCharacter(obj.ID);
                 }
 
-                //register your character
-                Clients.Client(Context.ConnectionId).registerCharacter(_globalId);
             }
 
             return base.OnConnected();
@@ -72,18 +92,33 @@ namespace SignalRPG.Models.Hubs
 
         public override System.Threading.Tasks.Task OnDisconnected()
         {
+            //get the map of the player
+            var mapName = "map-test";
 
-            if (ObjectList.ContainsKey(Context.ConnectionId))
+            //find the map
+            if (Maps.ContainsKey(mapName))
             {
-                //get the object
-                var obj = ObjectList[Context.ConnectionId];
+                //get the map based on the name
+                var map = Maps[mapName];
 
-                //when the player connects, add them to the object list
-                ObjectList.Remove(Context.ConnectionId);
+                //get the player
+                if (Players.ContainsKey(Context.ConnectionId))
+                {
+                    //get the object
+                    var obj = Players[Context.ConnectionId];
 
-                //character left, update all other clients
-                Clients.OthersInGroup("map-test").characterLeave(obj.ID);
+                    //when the player connects, add them to the object list
+                    Players.Remove(Context.ConnectionId);
+
+                    //remove player from map
+                    obj.Map.Objects.Remove(obj.ID);
+
+                    //character left, update all other clients
+                    Clients.OthersInGroup(mapName).characterLeave(obj.ID);
+                }
+
             }
+
 
             return base.OnDisconnected();
         }
@@ -93,9 +128,42 @@ namespace SignalRPG.Models.Hubs
             return base.OnReconnected();
         }
 
+        #region Methods
+
+        /// <summary>
+        /// checks to see if an instance of a map exists already, if not, creates it
+        /// </summary>
+        /// <param name="map"></param>
+        private void CreateMapInstance(string mapName)
+        {
+            //check to see if this instance is created already
+            if (!Maps.ContainsKey(mapName))
+            {
+                //nope, create a new map instance
+                var map = new Map(mapName);
+
+                //add map to dictionary
+                Maps.Add(mapName, map);
+
+                //create a signalR group
+                Groups.Add(Context.ConnectionId, "map-test");
+            }
+        }
+
         public void MoveCharacter(long id, int x, int y)
         {
+            //look up the character by the ID and
+            if (Players.ContainsKey(Context.ConnectionId)){
+                var obj = Players[Context.ConnectionId];
+
+                obj.X = x;
+                obj.Y = y;
+            }
+            
+
             Clients.All.moveCharacter(id, x, y);
         }
+        #endregion
+
     }
 }

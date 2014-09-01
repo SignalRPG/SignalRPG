@@ -206,6 +206,15 @@ function GameEngine(view) {
         character.Y = y;
     };
 
+    gameHub.client.moveMonster = function (id, x, y) {
+        var m = _map.findMapObjectById(id);
+        if (m != null) {
+
+            m.X = x;
+            m.Y = y;
+        }
+    };
+
     //start connection to hub
     $.connection.hub.start().done(function () {
         //initialize before requesting any frames

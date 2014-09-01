@@ -7,6 +7,6 @@ namespace SignalRPG.Models.GameClasses
 {
     public class Character : Sprite
     {
-        public string Color { get; set; }
+        
     }
 }
