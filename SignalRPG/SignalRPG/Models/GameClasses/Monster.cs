@@ -35,9 +35,9 @@ namespace SignalRPG.Models.GameClasses
                     X = charx;
                     Y = chary;
 
-                    GlobalHost.ConnectionManager.GetHubContext<GameHub>().Clients.All.moveMonster(ID, X, Y);
+                    GlobalHost.ConnectionManager.GetHubContext<GameHub>().Clients.All.moveObject(ID, X, Y);
 
-                    Thread.Sleep(5000);
+                    Thread.Sleep(10000);
                 }
             });
 

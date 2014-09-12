@@ -156,8 +156,8 @@ function GameEngine(view) {
 
             }
 
-            _char.X = x;
-            _char.Y = y;
+            //_char.X = x;
+            //_char.Y = y;
 
             //add update code here
             gameHub.server.moveCharacter(_char.ID, x, y);
@@ -199,20 +199,8 @@ function GameEngine(view) {
     };
 
     //when a character moves, the server calls this event to update the x,y coords
-    gameHub.client.moveCharacter = function (id, x, y) {
-        var character = _map.findMapObjectById(id);
-
-        character.X = x;
-        character.Y = y;
-    };
-
-    gameHub.client.moveMonster = function (id, x, y) {
-        var m = _map.findMapObjectById(id);
-        if (m != null) {
-
-            m.X = x;
-            m.Y = y;
-        }
+    gameHub.client.moveObject = function (id, x, y) {
+        _map.moveMapObject(id, x, y);
     };
 
     //start connection to hub

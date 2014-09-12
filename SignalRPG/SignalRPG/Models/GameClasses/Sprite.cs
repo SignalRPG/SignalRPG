@@ -22,6 +22,16 @@ namespace SignalRPG.Models.GameClasses
         public int Y { get; set; }
         public string Color { get; set; }
 
+        /// <summary>
+        /// Offset to draw the object from its current x coord
+        /// </summary>
+        public int XOffset { get; set; }
+
+        /// <summary>
+        /// Offset to draw the object from its current y coord
+        /// </summary>
+        public int YOffset { get; set; }
+
         [NonSerialized]
         public Map Map;
 

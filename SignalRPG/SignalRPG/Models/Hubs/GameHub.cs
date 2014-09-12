@@ -161,7 +161,7 @@ namespace SignalRPG.Models.Hubs
             }
             
 
-            Clients.All.moveCharacter(id, x, y);
+            Clients.All.moveObject(id, x, y);
         }
         #endregion
 

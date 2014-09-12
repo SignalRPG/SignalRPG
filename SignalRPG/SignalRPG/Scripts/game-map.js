@@ -70,7 +70,7 @@ function Map(name, loaded) {
         var flags = tile.type;
         var extraFlags = 0;
         var dims = [];
-        
+
         //strip out the extra flags so we can render the tiles
         if (flags & AUTOTILE_INNER_TOP_RIGHT) {
             flags &= ~AUTOTILE_INNER_TOP_RIGHT;
@@ -280,11 +280,31 @@ function Map(name, loaded) {
         //draw bottom layers
         drawLayers(ctx, gameTime, _bottomLayers);
 
+        //draw all of the map objects
         for (var k = 0; k < _mapObjects.length; k++) {
             var obj = _mapObjects[k];
             //draw characters and such
             ctx.fillStyle = obj.Color;
-            ctx.fillRect(obj.X * TILE_W, obj.Y * TILE_H, TILE_W, TILE_H);
+            ctx.fillRect((obj.X * TILE_W) + obj.XOffset, (obj.Y * TILE_H) + obj.YOffset, TILE_W, TILE_H);
+
+            //update offsets to transition
+            var d = 0.5;
+
+            if (obj.XOffset < 0) {
+                obj.XOffset += d * gameTime.frameTime;
+                if (obj.XOffset > 0) { obj.XOffset = 0; }
+            } else if (obj.XOffset > 0) {
+                obj.XOffset += -d * gameTime.frameTime;
+                if (obj.XOffset < 0) { obj.XOffset = 0; }
+            }
+
+            if (obj.YOffset < 0) {
+                obj.YOffset += d * gameTime.frameTime;
+                if (obj.YOffset > 0) { obj.YOffset = 0; }
+            } else if (obj.YOffset > 0) {
+                obj.YOffset += -d * gameTime.frameTime;
+                if (obj.YOffset < 0) { obj.YOffset = 0; }
+            }
         }
 
         //draw top layers
@@ -292,6 +312,29 @@ function Map(name, loaded) {
 
         //draw always-on-top characters (like birds and butterflies)
     };
+
+    //moves an object on the map to a new location
+    this.moveMapObject = function (id, x, y) {
+        var obj = _self.findMapObjectById(id);
+
+        //move an object to a new location
+        if (obj != null) {
+
+            //transition the object to the new location
+            //here, we'll figure out a path to the new location using A* algorithm
+
+            //for now we are just going to animate going to the new tile
+            //if (obj.X < x) obj.XOffset = obj.X
+            obj.XOffset += (obj.X - x) * TILE_W;
+            obj.YOffset += (obj.Y - y) * TILE_H;
+
+            //set the new position, but the offset will cause the obj
+            //to be drawn gradually
+            obj.X = x;
+            obj.Y = y;
+        }
+    }
+
 
     //pushes an object onto the map object stack
     this.pushMapObject = function (obj) {
@@ -323,6 +366,8 @@ function Map(name, loaded) {
         }
 
     };
+
+
 
     //initialize the map
     initialize();
